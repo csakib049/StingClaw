@@ -1,6 +1,7 @@
 import {select , isCancel} from "@clack/prompts";
 import chalk from "chalk";
 import figlet from "figlet";
+import { runCliMode } from "../modes/cli";
 
 const BANNER_FONT = "ANSI shadow";
 const SHADOW = chalk.hex('#5b4d9e');
@@ -26,10 +27,32 @@ function printBannerWithShadow(ascii: string) {
 export async function runWakeup() {
     let ascii:string;
     try {
-        ascii = figlet.textSync("stringclaw",{font:BANNER_FONT})
+        ascii = figlet.textSync("StingClaw",{font:BANNER_FONT})
     } catch (error) {
-        ascii = figlet.textSync("stringclaw",{font:"Standard"})
+        ascii = figlet.textSync("StingClaw",{font:"Standard"})
     }
 
     printBannerWithShadow(ascii)
+
+
+    const mode = await select({
+      message:"Which mode do you want to proceed with?",
+      options:[
+        {value:"cli",label:"CLI"},
+        {value:"telegram",label:"Telegram"},
+        {value:"exit",label:"Exit"}
+      ]
+    });
+
+    if(isCancel(mode || mode === "exit")){
+      console.log(chalk.dim('\n Goodbye. \n'));
+      return ; 
+    }
+
+    if(mode ==="cli"){
+       await runCliMode()
+    }else if (mode ==="telegram"){
+       console.log(chalk.dim("Starting telegram mode "))
+    }
+
 }

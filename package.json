@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "bin": {
-    "StingClaw-build": "./index.ts"
+    "stingclaw": "./index.ts"
   },
   "scripts": {
     "typecheck": "bun check"
@@ -19,6 +19,7 @@
   "dependencies": {
     "@clack/core": "^1.5.1",
     "@clack/prompts": "^1.8.1",
+    "ai": "^7.0.159",
     "chalk": "^6.0.1",
     "commander": "^15.0.0",
     "figlet": "^1.12.0"
