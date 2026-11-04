@@ -4,7 +4,7 @@ import { isMutationType } from "./types";
 
 export class ActionTracker {
 
-    private action: ActionLog[] = [];
+    private actions: ActionLog[] = [];
 
     log(
         entry: Omit<ActionLog, 'id' | 'timestamp'> & {
