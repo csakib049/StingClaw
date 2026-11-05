@@ -1,5 +1,8 @@
 #!/usr/bin/env bun
 
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Command } from "commander";
 import { runWakeup } from "./tui/wakeup";
 
