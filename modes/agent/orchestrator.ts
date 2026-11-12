@@ -58,16 +58,18 @@ export async function runAgentMode() {
   const ok = await runApprovalFlow(tracker);
   if (!ok) return executer.clearStaging();
 
-  const { errors, shellOutput } = executer.applyApprovedFromTracker();
+  const { applied, failed, shellOutput } = executer.applyApprovedFromTracker();
   for (const output of shellOutput) console.log(`\n${output}`);
 
-  if (errors.length) {
-    console.log(chalk.red("\nSome operations reported errors:\n"));
-    for (const e of errors) console.log(chalk.red(`  • ${e}`));
+  if (applied.length) {
+    console.log(chalk.green("\nApplied successfully:"));
+    for (const item of applied) console.log(chalk.green(`  • ${item}`));
   }
-  else{
-   console.log(chalk.green('\n✓ Applied.\n'));
+  if (failed.length) {
+    console.log(chalk.red("\nFailed:"));
+    for (const item of failed) console.log(chalk.red(`  • ${item.target}: ${item.error}`));
   }
+  if (!failed.length) console.log(chalk.green("\n✓ All approved operations completed.\n"));
 
   executer.clearStaging()
 

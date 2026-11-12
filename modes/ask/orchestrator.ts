@@ -131,6 +131,12 @@ export async function runAskMode() {
     const ok = await runApprovalFlow(tracker);
     if (!ok) return executor.clearStaging();
 
-    executor.applyApprovedFromTracker();
+    const { failed } = executor.applyApprovedFromTracker();
+    if (failed.length) {
+        console.error("Could not save the answer:");
+        for (const item of failed) console.error(`  • ${item.target}: ${item.error}`);
+    } else {
+        console.log(chalk.green("Answer saved."));
+    }
     executor.clearStaging();
 }

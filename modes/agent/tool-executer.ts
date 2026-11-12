@@ -399,18 +399,32 @@ export class ToolExecutor {
     return text;
   }
 
-  applyApprovedFromTracker(): { errors: string[]; shellOutput: string[] } {
+  applyApprovedFromTracker(): {
+    errors: string[];
+    shellOutput: string[];
+    applied: string[];
+    failed: { target: string; error: string }[];
+  } {
     const errors: string[] = [];
     const shellOutput: string[] = [];
+    const applied: string[] = [];
+    const failed: { target: string; error: string }[] = [];
     const all = [...this.tracker.getActions()];
+
+    const recordFailure = (target: string, error: unknown) => {
+      const message = String(error);
+      errors.push(`${target}: ${message}`);
+      failed.push({ target, error: message });
+    };
 
     for (const a of all.filter(
       (x) => x.type === "folder_create" && x.status === "approved",
     )) {
       try {
         fs.mkdirSync(this.resolveSafe(a.path), { recursive: true });
+        applied.push(`folder: ${a.path}`);
       } catch (e) {
-        errors.push(String(e));
+        recordFailure(`folder: ${a.path}`, e);
       }
     }
 
@@ -436,8 +450,9 @@ export class ToolExecutor {
           fs.mkdirSync(path.dirname(target), { recursive: true });
           fs.writeFileSync(target, a.details.after ?? "", "utf8");
         }
+        applied.push(`${a.type}: ${p}`);
       } catch (e) {
-        errors.push(String(e));
+        recordFailure(`${a.type}: ${p}`, e);
       }
     }
 
@@ -456,11 +471,12 @@ export class ToolExecutor {
       const stdout = (r.stdout ?? "").trim();
       const stderr = (r.stderr ?? "").trim();
       shellOutput.push([`$ ${cmd}`, stdout, stderr && `(stderr)\n${stderr}`].filter(Boolean).join("\n"));
-      if (r.error) errors.push(`shell error: ${cmd}: ${r.error.message}`);
-      else if (r.status !== 0) errors.push(`shell exit ${r.status}: ${cmd}${stderr ? `\n${stderr}` : ""}`);
+      if (r.error) recordFailure(`shell: ${cmd}`, r.error.message);
+      else if (r.status !== 0) recordFailure(`shell: ${cmd}`, `exit ${r.status}${stderr ? `\n${stderr}` : ""}`);
+      else applied.push(`shell: ${cmd}`);
     }
 
-    return { errors, shellOutput };
+    return { errors, shellOutput, applied, failed };
   }
 
   clearStaging():void{

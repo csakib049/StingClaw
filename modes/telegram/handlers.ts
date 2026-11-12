@@ -8,6 +8,18 @@ import { planKeyboard, planMessage, planSessions, refreshPlanUi, type PlanSessio
 import { approvalDiff, approvalSessions } from "./approval-session";
 
 const planRequests = new Set<number>();
+const activeTaskChats = new Set<number>();
+
+function chatIsBusy(chatId: number): boolean {
+  return (
+    activeTaskChats.has(chatId) ||
+    approvalSessions.has(chatId) ||
+    planSessions.has(chatId) ||
+    planRequests.has(chatId)
+  );
+}
+
+
 
 export function registerHandlers(bot: Telegraf) {
   bot.command("start", async (ctx) => {
@@ -34,13 +46,26 @@ export function registerHandlers(bot: Telegraf) {
       return ctx.reply("Usage: `/agent <task description>`", {
         parse_mode: "Markdown",
       });
-    await ctx.reply("🤖 Agent is working on your task…");
-    void runAgent(ctx, ctx.chat.id, goal).catch(console.error);
+    const chatId = ctx.chat.id;
+    if (chatIsBusy(chatId)) {
+      return ctx.reply("Finish the current task or approval first.");
+    }
+
+    activeTaskChats.add(chatId);
+    try {
+      await ctx.reply("🤖 Agent is working on your task…");
+      await runAgent(ctx, chatId, goal);
+    } catch (error) {
+      console.error(error);
+      await ctx.reply("The agent task failed.");
+    } finally {
+      activeTaskChats.delete(chatId);
+    }
   });
   bot.command("plan", async (ctx) => {
     if (!isOwner(ctx.chat.id)) return;
-    if (planSessions.has(ctx.chat.id) || planRequests.has(ctx.chat.id)) {
-      return ctx.reply("A plan is already awaiting selection. Use its buttons first.");
+    if (chatIsBusy(ctx.chat.id)) {
+      return ctx.reply("Finish the current task or approval first.");
     }
 
     const goal = commandArg(ctx.message.text, "plan");
@@ -63,10 +88,7 @@ export function registerHandlers(bot: Telegraf) {
       // Store before sending the buttons so a fast callback can resolve its session.
       planSessions.set(ctx.chat.id, session);
       try {
-        await ctx.reply(planMessage(session), {
-          parse_mode: "Markdown",
-          ...planKeyboard(session),
-        });
+        await ctx.reply(planMessage(session), planKeyboard(session));
       } catch (error) {
         planSessions.delete(ctx.chat.id);
         throw error;
@@ -119,13 +141,24 @@ export function registerHandlers(bot: Telegraf) {
     const steps = s.plan.steps.filter((step) => s.selected.has(step.id));
     if (steps.length === 0) return ctx.answerCbQuery();
 
+    const chatId = ctx.chat!.id;
+    if (activeTaskChats.has(chatId)) {
+      return ctx.answerCbQuery("A task is already running.");
+    }
+    activeTaskChats.add(chatId);
     const { plan } = s;
-    planSessions.delete(ctx.chat!.id);
+    planSessions.delete(chatId);
     const list = steps.map((step, i) => `${i + 1}. ${step.title}`).join('\n');
-    await ctx.editMessageText(`🚀 Executing ${steps.length} step(s)…\n\n${list}`);
-    await ctx.answerCbQuery();
-
-    void runPlanSteps(ctx, ctx.chat!.id, plan, steps).catch(console.error);
+    try {
+      await ctx.editMessageText(`🚀 Executing ${steps.length} step(s)…\n\n${list}`);
+      await ctx.answerCbQuery();
+      await runPlanSteps(ctx, chatId, plan, steps);
+    } catch (error) {
+      console.error(error);
+      await ctx.reply("The plan execution failed.");
+    } finally {
+      activeTaskChats.delete(chatId);
+    }
   });
 
   bot.action('approval_diff', async (ctx) => {
@@ -143,13 +176,18 @@ export function registerHandlers(bot: Telegraf) {
 
     approvalSessions.delete(ctx.chat!.id);
     for (const a of s.pending) s.tracker.updateStatus(a.id, 'approved', true);
-    const { errors, shellOutput } = s.executor.applyApprovedFromTracker();
+    const { applied, failed, shellOutput } = s.executor.applyApprovedFromTracker();
     s.executor.clearStaging();
 
-    const output = shellOutput.join('\n\n').slice(0, 3000);
-    await ctx.editMessageText(`✅ All changes applied.${errors.length ? `\n\n⚠️ ${errors.join('\n')}` : ''}${output ? `\n\n${output.replace(/`/g, "'")}` : ''}`);
-    await ctx.answerCbQuery('Applied!');
-    if (errors.length) console.error(errors);
+    const sections = [
+      applied.length ? `✅ Applied:\n${applied.map((item) => `• ${item}`).join('\n')}` : "",
+      failed.length ? `⚠️ Failed:\n${failed.map((item) => `• ${item.target}: ${item.error}`).join('\n')}` : "",
+      shellOutput.length ? `Command output:\n${shellOutput.join('\n\n')}` : "",
+    ].filter(Boolean);
+    const summary = sections.join("\n\n") || "No operations were applied.";
+    await ctx.editMessageText(clip(summary));
+    await ctx.answerCbQuery(failed.length ? "Completed with errors" : "Applied!");
+    if (failed.length) console.error(failed);
   });
 
   bot.action('approval_reject', async (ctx) => {

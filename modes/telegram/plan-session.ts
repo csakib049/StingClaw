@@ -14,14 +14,14 @@ export function planMessage(session: PlanSession): string {
   const lines = session.plan.steps.map((step, i) => {
     const mark = session.selected.has(step.id) ? '✅' : '⬜';
     const tag = step.complexity ? ` [${step.complexity}]` : '';
-    return `${mark} ${i + 1}. *${step.title}*${tag}`;
+    return `${mark} ${i + 1}. ${step.title}${tag}`;
   });
   return [
-    `📋 *Plan for:* ${session.plan.goal}`,
+    `📋 Plan for: ${session.plan.goal}`,
     '',
     ...lines,
     '',
-    '_Tap steps to toggle, then hit Proceed._',
+    'Tap steps to toggle, then hit Proceed.',
   ].join('\n');
 }
 
@@ -46,7 +46,6 @@ export async function refreshPlanUi(
   s: PlanSession,
 ) {
   await ctx.editMessageText(planMessage(s), {
-    parse_mode: 'Markdown',
     reply_markup: planKeyboard(s).reply_markup,
   });
 }

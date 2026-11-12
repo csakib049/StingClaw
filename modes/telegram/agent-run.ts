@@ -107,7 +107,7 @@ export async function runPlanSteps(
   const tools = { ...createAgentTools(executor), ...extraWebTools(tracker) };
 
   for (const step of steps) {
-    await ctx.reply(`🔧 Executing: *${step.title}*`, { parse_mode: 'Markdown' });
+    await ctx.reply(`🔧 Executing: ${step.title}`);
     const prompt = [`Goal: ${plan.goal}`, `Step: ${step.title}`, step.description].join('\n');
     const agent = new ToolLoopAgent({
       ...agentOptions(config, 30),
