@@ -95,7 +95,7 @@ export async function runAskMode() {
 
     const tools = {
         ...createAskTools(executor),
-        ...createWebTools(tracker),
+        ...(process.env.FIRECRAWL_API_KEY ? createWebTools(tracker) : {}),
     };
 
     const agent = new ToolLoopAgent({

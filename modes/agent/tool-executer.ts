@@ -46,7 +46,29 @@ export class ToolExecutor {
     if (relCheck.startsWith("..") || path.isAbsolute(relCheck)) {
       throw new Error(`Path escapes workspace: ${rel}`);
     }
+    // Check the nearest existing ancestor after resolving symlinks. A lexical
+    // path check alone allows a workspace symlink to target files elsewhere.
+    let ancestor = abs;
+    while (!fs.existsSync(ancestor) && !this.isSymlink(ancestor)) {
+      const parent = path.dirname(ancestor);
+      if (parent === ancestor) break;
+      ancestor = parent;
+    }
+    const realRoot = fs.realpathSync(root);
+    const realAncestor = fs.realpathSync(ancestor);
+    const realRelative = path.relative(realRoot, realAncestor);
+    if (realRelative === ".." || realRelative.startsWith(`..${path.sep}`) || path.isAbsolute(realRelative)) {
+      throw new Error(`Path resolves outside workspace: ${rel}`);
+    }
     return abs;
+  }
+
+  private isSymlink(target: string): boolean {
+    try {
+      return fs.lstatSync(target).isSymbolicLink();
+    } catch {
+      return false;
+    }
   }
 
   private excluded(relPath: string): boolean {
@@ -81,6 +103,20 @@ export class ToolExecutor {
 
   readFile(rel: string): string {
     this.assertNotExcluded(rel, "read_file");
+    if (this.deleted.has(this.norm(rel))) throw new Error(`File not found: ${rel}`);
+    const staged = this.getEffectiveText(rel);
+    if (staged !== undefined) {
+      if (Buffer.byteLength(staged, "utf8") > this.config.maxFileSizeToRead) {
+        throw new Error(`File too large: ${rel}`);
+      }
+      this.tracker.log({
+        type: "code_analysis",
+        path: this.norm(rel),
+        details: { after: staged, toolName: "read_file" },
+        status: "executed",
+      });
+      return staged;
+    }
     const abs = this.resolveSafe(rel);
     if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) {
       throw new Error(`File not found: ${rel}`);
@@ -363,8 +399,9 @@ export class ToolExecutor {
     return text;
   }
 
-  applyApprovedFromTracker(): { errors: string[] } {
+  applyApprovedFromTracker(): { errors: string[]; shellOutput: string[] } {
     const errors: string[] = [];
+    const shellOutput: string[] = [];
     const all = [...this.tracker.getActions()];
 
     for (const a of all.filter(
@@ -414,12 +451,16 @@ export class ToolExecutor {
         cwd: this.config.codebasePath,
         encoding: "utf8",
         maxBuffer: 16 * 1024 * 1024,
+        timeout: 30_000,
       });
-      if (r.status && r.status !== 0)
-        errors.push(`shell exit ${r.status}: ${cmd}`);
+      const stdout = (r.stdout ?? "").trim();
+      const stderr = (r.stderr ?? "").trim();
+      shellOutput.push([`$ ${cmd}`, stdout, stderr && `(stderr)\n${stderr}`].filter(Boolean).join("\n"));
+      if (r.error) errors.push(`shell error: ${cmd}: ${r.error.message}`);
+      else if (r.status !== 0) errors.push(`shell exit ${r.status}: ${cmd}${stderr ? `\n${stderr}` : ""}`);
     }
 
-    return { errors };
+    return { errors, shellOutput };
   }
 
   clearStaging():void{

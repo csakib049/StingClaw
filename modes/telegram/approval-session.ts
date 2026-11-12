@@ -53,6 +53,10 @@ async function promptApproval(
   chatId: number,
   session: ApprovalSession,
 ) {
+  if (approvalSessions.has(chatId)) {
+    await ctx.reply('A previous change set is still awaiting approval. Resolve it before starting another task.');
+    return;
+  }
   approvalSessions.set(chatId, session);
   await ctx.reply(approvalSummary(session.pending), {
     ...Markup.inlineKeyboard([

@@ -3,6 +3,7 @@ import type { Plan } from '../plan/types.ts';
 
 
 export interface PlanSession {
+  id: string;
   plan: Plan;
   selected: Set<string>;
 }
@@ -28,15 +29,15 @@ export function planKeyboard(session: PlanSession) {
   const rows = session.plan.steps.map((step, i) => {
     const mark = session.selected.has(step.id) ? '✅' : '⬜';
     const label = `${mark} Step ${i + 1}: ${step.title}`;
-    return [Markup.button.callback(label, `plan_toggle:${step.id}`)];
+    return [Markup.button.callback(label, `plan_toggle:${session.id}:${step.id}`)];
   });
   return Markup.inlineKeyboard([
     ...rows,
     [
-      Markup.button.callback('✅ Select All', 'plan_all'),
-      Markup.button.callback('⬜ Deselect All', 'plan_none'),
+      Markup.button.callback('✅ Select All', `plan_all:${session.id}`),
+      Markup.button.callback('⬜ Deselect All', `plan_none:${session.id}`),
     ],
-    [Markup.button.callback('🚀 Proceed', 'plan_proceed')],
+    [Markup.button.callback('🚀 Proceed', `plan_proceed:${session.id}`)],
   ]);
 }
 

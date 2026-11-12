@@ -58,7 +58,8 @@ export async function runAgentMode() {
   const ok = await runApprovalFlow(tracker);
   if (!ok) return executer.clearStaging();
 
-  const { errors } = executer.applyApprovedFromTracker();
+  const { errors, shellOutput } = executer.applyApprovedFromTracker();
+  for (const output of shellOutput) console.log(`\n${output}`);
 
   if (errors.length) {
     console.log(chalk.red("\nSome operations reported errors:\n"));

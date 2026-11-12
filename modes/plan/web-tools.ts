@@ -19,6 +19,32 @@ function clip(s: string, n = 8000): string {
     return s.length > n ? s.slice(0, n) + "\n…[truncated]" : s;
 }
 
+function isPublicHttpUrl(value: string): boolean {
+    try {
+        const url = new URL(value);
+
+        if (url.protocol !== "http:" && url.protocol !== "https:") return false;
+        if (url.username || url.password) return false;
+
+        const host = url.hostname.toLowerCase();
+        if (
+            host === "localhost" ||
+            host.endsWith(".localhost") ||
+            host === "127.0.0.1" ||
+            host.startsWith("10.") ||
+            host.startsWith("192.168.") ||
+            host.startsWith("169.254.") ||
+            /^172\.(1[6-9]|2\d|3[01])\./.test(host)
+        ) {
+            return false;
+        }
+
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 export function createWebTools(tracker: ActionTracker) {
     return {
         web_search: tool({
@@ -73,19 +99,31 @@ export function createWebTools(tracker: ActionTracker) {
         }),
 
         fetch_url: tool({
-            description: 'HTTP GET for a URL. Returns response body.',
+            description: "HTTP GET for a URL. Returns response body.",
             inputSchema: z.object({ url: z.string().url() }),
             execute: async ({ url }) => {
-                const r = await fetch(url, { redirect: 'follow' });
-                const body = await r.text();
+                if (!isPublicHttpUrl(url)) {
+                    throw new Error("Only public HTTP and HTTPS URLs are allowed.");
+                }
+
+                const response = await fetch(url, { redirect: "manual" });
+                if (response.status >= 300 && response.status < 400) {
+                    throw new Error("Redirects are disabled for fetch_url.");
+                }
+
+                const body = await response.text();
                 const out = clip(body, 16_000);
                 tracker.log({
-                    type: 'code_analysis',
+                    type: "code_analysis",
                     path: `fetch:${url}`,
-                    details: { after: `HTTP ${r.status}\n\n${out}`, toolName: 'fetch_url' },
-                    status: 'executed',
+                    details: {
+                        after: `HTTP ${response.status}\n\n${out}`,
+                        toolName: "fetch_url",
+                    },
+                    status: "executed",
                 });
-                return `HTTP ${r.status}\n\n${out}`;
+
+                return `HTTP ${response.status}\n\n${out}`;
             },
         }),
     };

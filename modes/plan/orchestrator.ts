@@ -36,6 +36,7 @@ export async function runPlanMode(): Promise<void> {
     message: `Execute ${selected.length} step(s)`,
     initialValue: true,
   });
+  if (isCancel(proceed) || !proceed) return;
 
   const config = defaultAgentConfig();
   const tracker = new ActionTracker();
@@ -44,7 +45,7 @@ export async function runPlanMode(): Promise<void> {
 
   const tools = {
     ...createAgentTools(executor),
-    ...createWebTools(tracker)
+    ...(process.env.FIRECRAWL_API_KEY ? createWebTools(tracker) : {})
   };
 
   for (const step of selected) {
@@ -58,7 +59,7 @@ export async function runPlanMode(): Promise<void> {
 
     const r = await agent.generate({prompt:stepPrompt(plan.goal , step)})
 
-    if(r.text) return console.log(renderTerminalMarkdown(r.text))
+    if (r.text?.trim()) console.log(renderTerminalMarkdown(r.text));
 
   }
 
@@ -66,7 +67,8 @@ export async function runPlanMode(): Promise<void> {
 
   if(!ok) return executor.clearStaging();
 
-   const { errors } = executor.applyApprovedFromTracker();
+   const { errors, shellOutput } = executor.applyApprovedFromTracker();
+  for (const output of shellOutput) console.log(`\n${output}`);
   if (errors.length) {
     console.log(chalk.red('\nSome operations reported errors:\n'));
     for (const e of errors) console.log(chalk.red(`  • ${e}`));
