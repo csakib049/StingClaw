@@ -30,6 +30,14 @@ export class ActionTracker {
         return this.actions;
     }
 
+    restore(actions: readonly ActionLog[]): void {
+        this.actions = actions.map((action) => ({
+            ...action,
+            timestamp: new Date(action.timestamp),
+            details: { ...action.details },
+        }));
+    }
+
     getPendingMutations(): ActionLog[] {
         return this.actions.filter(
             (a) => isMutationType(a.type) && a.status === "pending",

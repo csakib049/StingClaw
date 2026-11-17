@@ -84,3 +84,21 @@ db.run(`
   );
 `);
 
+// Additive migration for databases created before background workers.
+const taskColumns = db.query("PRAGMA table_info(tasks)").all() as { name: string }[];
+if (!taskColumns.some((column) => column.name === "worker_pid")) {
+  db.run("ALTER TABLE tasks ADD COLUMN worker_pid INTEGER;");
+}
+if (!taskColumns.some((column) => column.name === "workspace_path")) {
+  db.run("ALTER TABLE tasks ADD COLUMN workspace_path TEXT NOT NULL DEFAULT ''; ");
+}
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS task_actions (
+    id TEXT PRIMARY KEY,
+    task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    action_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+`);
+

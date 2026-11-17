@@ -1,4 +1,5 @@
 import { db } from "./database";
+import type { ActionLog } from "../modes/agent/types";
 
 export interface Agent {
     id: string;
@@ -63,6 +64,29 @@ export function getAgent(id: string): Agent | null {
     return row ?? null;
 }
 
+export function updateAgent(
+  id: string,
+  input: { name: string; description: string; instructions: string },
+): Agent {
+  const update = db.query(`
+    UPDATE agents
+    SET name = $name,
+        description = $description,
+        instructions = $instructions,
+        updated_at = $updated_at
+    WHERE id = $id
+  `).run({
+    $id: id,
+    $name: input.name.trim(),
+    $description: input.description.trim(),
+    $instructions: input.instructions.trim(),
+    $updated_at: new Date().toISOString(),
+  });
+
+  if (update.changes === 0) throw new Error(`Agent not found: ${id}`);
+  return getAgent(id)!;
+}
+
 export function listAgents(): Agent[] {
     return db.query(`
     SELECT id, name, description, instructions, created_at, updated_at
@@ -112,6 +136,15 @@ export function listConversations(agentId: string): Conversation[] {
     WHERE agent_id = $agent_id
     ORDER BY updated_at DESC
   `).all({ $agent_id: agentId }) as Conversation[];
+}
+
+export function getConversation(id: string): Conversation | null {
+  const row = db.query(`
+    SELECT id, agent_id, title, created_at, updated_at
+    FROM conversations
+    WHERE id = $id
+  `).get({ $id: id }) as Conversation | null;
+  return row ?? null;
 }
 
 
@@ -203,6 +236,8 @@ export interface Task {
     error: string | null;
     created_at: string;
     updated_at: string;
+    worker_pid: number | null;
+    workspace_path: string;
 }
 
 export interface TaskEvent {
@@ -217,6 +252,7 @@ export function createTask(input: {
   agentId: string;
   conversationId: string;
   goal: string;
+  workspacePath: string;
 }): Task {
   const conversation = db.query(`
     SELECT id
@@ -245,16 +281,18 @@ export function createTask(input: {
     error: null,
     created_at: now,
     updated_at: now,
+    worker_pid: null,
+    workspace_path: input.workspacePath,
   };
 
   db.query(`
     INSERT INTO tasks (
       id, agent_id, conversation_id, status, goal,
-      result, error, created_at, updated_at
+      result, error, created_at, updated_at, worker_pid, workspace_path
     )
     VALUES (
       $id, $agent_id, $conversation_id, $status, $goal,
-      $result, $error, $created_at, $updated_at
+      $result, $error, $created_at, $updated_at, $worker_pid, $workspace_path
     )
   `).run({
     $id: task.id,
@@ -266,6 +304,8 @@ export function createTask(input: {
     $error: task.error,
     $created_at: task.created_at,
     $updated_at: task.updated_at,
+    $worker_pid: task.worker_pid,
+    $workspace_path: task.workspace_path,
   });
 
   return task;
@@ -275,7 +315,7 @@ export function getTask(taskId: string): Task | null {
   const task = db.query(`
     SELECT
       id, agent_id, conversation_id, status, goal,
-      result, error, created_at, updated_at
+      result, error, created_at, updated_at, worker_pid, workspace_path
     FROM tasks
     WHERE id = $id
   `).get({ $id: taskId }) as Task | null;
@@ -287,7 +327,7 @@ export function listTasks(conversationId: string): Task[] {
   return db.query(`
     SELECT
       id, agent_id, conversation_id, status, goal,
-      result, error, created_at, updated_at
+      result, error, created_at, updated_at, worker_pid, workspace_path
     FROM tasks
     WHERE conversation_id = $conversation_id
     ORDER BY created_at DESC
@@ -307,7 +347,8 @@ export function updateTaskStatus(input: {
     SET status = $status,
         result = $result,
         error = $error,
-        updated_at = $updated_at
+        updated_at = $updated_at,
+        worker_pid = NULL
     WHERE id = $id
   `).run({
     $id: input.taskId,
@@ -366,4 +407,116 @@ export function listTaskEvents(taskId: string): TaskEvent[] {
     WHERE task_id = $task_id
     ORDER BY created_at ASC
   `).all({ $task_id: taskId }) as TaskEvent[];
+}
+
+export function listRecentTasks(limit = 30): Task[] {
+  return db.query(`
+    SELECT
+      id, agent_id, conversation_id, status, goal,
+      result, error, created_at, updated_at, worker_pid, workspace_path
+    FROM tasks
+    ORDER BY created_at DESC
+    LIMIT $limit
+  `).all({ $limit: limit }) as Task[];
+}
+
+export function claimQueuedTask(taskId: string, workerPid: number): boolean {
+  const result = db.query(`
+    UPDATE tasks
+    SET status = 'running', worker_pid = $worker_pid,
+        updated_at = $updated_at
+    WHERE id = $id AND status = 'queued'
+  `).run({
+    $id: taskId,
+    $worker_pid: workerPid,
+    $updated_at: new Date().toISOString(),
+  });
+  return result.changes === 1;
+}
+
+export function retryTask(taskId: string): Task {
+  const queueRetry = db.transaction(() => {
+    const update = db.query(`
+      UPDATE tasks
+      SET status = 'queued', result = NULL, error = NULL,
+          worker_pid = NULL, updated_at = $updated_at
+      WHERE id = $id AND status IN ('failed', 'cancelled')
+    `).run({ $id: taskId, $updated_at: new Date().toISOString() });
+
+    if (update.changes === 0) {
+      throw new Error(`Task cannot be retried: ${taskId}`);
+    }
+
+    db.query("DELETE FROM task_actions WHERE task_id = $task_id")
+      .run({ $task_id: taskId });
+  });
+
+  queueRetry();
+
+  return getTask(taskId)!;
+}
+
+export function saveTaskActions(taskId: string, actions: readonly ActionLog[]): void {
+  db.transaction(() => replaceTaskActions(taskId, actions))();
+}
+
+function replaceTaskActions(taskId: string, actions: readonly ActionLog[]): void {
+  db.query("DELETE FROM task_actions WHERE task_id = $task_id")
+    .run({ $task_id: taskId });
+
+  const insert = db.query(`
+    INSERT INTO task_actions (id, task_id, action_json, created_at)
+    VALUES ($id, $task_id, $action_json, $created_at)
+  `);
+
+  for (const action of actions) {
+    insert.run({
+      $id: action.id,
+      $task_id: taskId,
+      $action_json: JSON.stringify(action),
+      $created_at: action.timestamp.toISOString(),
+    });
+  }
+}
+
+export function recordTaskApproval(
+  taskId: string,
+  actions: readonly ActionLog[],
+  status: "waiting_approval" | "running" | "completed",
+  result: string | null,
+  workerPid: number | null,
+): void {
+  db.transaction(() => {
+    replaceTaskActions(taskId, actions);
+    const update = db.query(`
+      UPDATE tasks
+      SET status = $status, result = $result, error = NULL,
+          worker_pid = $worker_pid, updated_at = $updated_at
+      WHERE id = $id AND status IN ('running', 'waiting_approval')
+    `).run({
+      $id: taskId,
+      $status: status,
+      $result: result,
+      $worker_pid: workerPid,
+      $updated_at: new Date().toISOString(),
+    });
+
+    if (update.changes !== 1) {
+      throw new Error(`Task is no longer waiting for approval: ${taskId}`);
+    }
+  })();
+}
+
+export function listTaskActions(taskId: string): ActionLog[] {
+  const rows = db.query(`
+    SELECT action_json
+    FROM task_actions
+    WHERE task_id = $task_id
+    ORDER BY created_at ASC
+  `).all({ $task_id: taskId }) as { action_json: string }[];
+
+  return rows.map(({ action_json }) => {
+    const action = JSON.parse(action_json) as ActionLog;
+    return { ...action, timestamp: new Date(action.timestamp) };
+  });
 }

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0c0e" />
+    <title>StingClaw — Local Agents</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="window-topbar">
+          <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <span class="local-status"><span class="status-light"></span> Local</span>
+          <button class="icon-button add-agent-button" id="add-agent-button" aria-label="Add agent" title="Add agent">+</button>
+        </div>
+
+        <label class="search-box">
+          <span aria-hidden="true">⌕</span>
+          <input id="agent-search" type="search" placeholder="Search agents" autocomplete="off" />
+          <kbd>/</kbd>
+        </label>
+
+        <div class="sidebar-section-title">
+          <span>Your agents</span>
+          <span id="agent-count" class="count-pill">0</span>
+        </div>
+        <nav id="agent-list" class="agent-list" aria-label="Agents"></nav>
+
+        <div class="sidebar-bottom">
+          <div class="backend-indicator"><span class="status-light"></span><span>Background service connected</span></div>
+          <span class="local-only-label">Your data stays on this computer</span>
+        </div>
+      </aside>
+
+      <main class="chat-column">
+        <header class="chat-header">
+          <div class="active-agent-heading">
+            <div id="header-avatar" class="avatar avatar-large">S</div>
+            <div class="heading-copy">
+              <h1 id="active-agent-name">Loading agents…</h1>
+              <p id="active-agent-description">Local agent workspace</p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <span id="active-task-status" class="task-status-badge hidden"></span>
+            <button id="new-chat-button" class="quiet-button"><span aria-hidden="true">＋</span> New chat</button>
+            <button id="settings-button" class="icon-button settings-button" aria-label="Agent settings" title="Agent settings">⚙</button>
+          </div>
+        </header>
+
+        <section id="welcome-panel" class="welcome-panel hidden">
+          <div class="welcome-mark">✳</div>
+          <h2>What can I help you with?</h2>
+          <p>Choose an agent and send a message. Tasks keep running if you close this page.</p>
+        </section>
+
+        <section id="message-list" class="message-list" aria-live="polite" aria-label="Conversation"></section>
+
+        <section class="task-area" id="task-area" aria-label="Task status"></section>
+
+        <form id="message-form" class="composer">
+          <textarea id="message-input" rows="1" placeholder="Message this agent…" aria-label="Message this agent"></textarea>
+          <div class="composer-footer">
+            <span class="composer-hint"><kbd>Enter</kbd> to send · <kbd>Shift + Enter</kbd> for a new line</span>
+            <button id="send-button" class="send-button" type="submit" aria-label="Send message">
+              <span>Send</span><span aria-hidden="true">↑</span>
+            </button>
+          </div>
+        </form>
+        <div class="disclaimer">Agents can make mistakes. Review proposed changes before approving them.</div>
+      </main>
+
+      <aside id="settings-panel" class="settings-panel hidden" aria-label="Agent settings">
+        <div class="settings-header">
+          <button id="close-settings" class="icon-button" aria-label="Close settings">‹</button>
+          <h2>Agent settings</h2>
+          <span class="settings-spacer"></span>
+        </div>
+        <div class="settings-avatar-wrap"><div id="settings-avatar" class="avatar avatar-settings">S</div></div>
+        <form id="settings-form" class="settings-form">
+          <label>Name<input id="settings-name" maxlength="80" required /></label>
+          <label>Description<textarea id="settings-description" rows="3" maxlength="1000"></textarea></label>
+          <label>Instructions<textarea id="settings-instructions" rows="7" maxlength="8000" placeholder="How should this agent work?"></textarea></label>
+          <p class="settings-note">Model and permission settings will be added in a later step.</p>
+          <button class="save-button" type="submit">Save settings</button>
+        </form>
+        <div class="conversation-section">
+          <div class="sidebar-section-title"><span>Recent chats</span></div>
+          <nav id="conversation-list" class="conversation-list" aria-label="Conversations"></nav>
+        </div>
+      </aside>
+    </div>
+
+    <dialog id="new-agent-dialog" class="modal-card">
+      <form id="new-agent-form" method="dialog">
+        <div class="modal-heading"><div><span class="eyebrow">NEW AGENT</span><h2>Create an agent</h2></div><button class="icon-button" value="cancel" aria-label="Close">×</button></div>
+        <label>Name<input id="new-agent-name" maxlength="80" placeholder="e.g. Research Assistant" required /></label>
+        <label>Description<textarea id="new-agent-description" rows="3" maxlength="1000" placeholder="What kind of work is this agent for?"></textarea></label>
+        <div class="modal-actions"><button class="quiet-button" value="cancel">Cancel</button><button class="save-button" id="create-agent-submit" value="default">Create agent</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="approval-dialog" class="approval-dialog">
+      <div class="approval-heading"><div><span class="eyebrow">REVIEW REQUIRED</span><h2>Proposed changes</h2><p id="approval-summary"></p></div><button class="icon-button" id="close-approval" aria-label="Close">×</button></div>
+      <div id="approval-content" class="approval-content"></div>
+      <div class="approval-footer"><p>Nothing is applied until you approve.</p><div><button id="reject-changes" class="quiet-button danger-button">Reject changes</button><button id="approve-changes" class="save-button">Approve all</button></div></div>
+    </dialog>
+
+    <div id="toast" class="toast hidden" role="status"></div>
+  </body>
+</html>
