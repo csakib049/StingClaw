@@ -2,8 +2,9 @@ import { Telegraf } from "telegraf";
 import chalk from "chalk";
 import { WELCOME } from "./constants";
 import { registerHandlers } from "./handlers";
+import { startTelegramTaskSync } from "./shared-tasks";
 
-export async function runTelegramMode() {
+export async function runTelegramMode(options: { announceWelcome?: boolean } = {}) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const ownerId = process.env.TELEGRAM_OWNER_ID;
 
@@ -14,8 +15,10 @@ export async function runTelegramMode() {
   const bot = new Telegraf(token);
   registerHandlers(bot)
 
-  await bot.telegram.sendMessage(ownerId, WELCOME, { parse_mode: "Markdown" });
-  console.log(chalk.green("Sent welcome message to Telegram.\n"));
+  if (options.announceWelcome !== false) {
+    await bot.telegram.sendMessage(ownerId, WELCOME, { parse_mode: "Markdown" });
+    console.log(chalk.green("Sent welcome message to Telegram.\n"));
+  }
 
 
   try{
@@ -26,8 +29,11 @@ export async function runTelegramMode() {
     return;
   }
 
+  const stopTaskSync = startTelegramTaskSync(bot, Number(ownerId));
+
   await new Promise<void>((resolve) => {
     const stop = () => {
+      stopTaskSync();
       bot.stop("SIGINT");
       resolve();
     };

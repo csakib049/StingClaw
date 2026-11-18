@@ -45,6 +45,7 @@
             </div>
           </div>
           <div class="header-actions">
+            <button id="notifications-button" class="icon-button notification-button" aria-label="Notifications" title="Notifications" aria-haspopup="dialog">🔔<span id="notification-count" class="notification-count hidden">0</span></button>
             <span id="active-task-status" class="task-status-badge hidden"></span>
             <button id="new-chat-button" class="quiet-button"><span aria-hidden="true">＋</span> New chat</button>
             <button id="settings-button" class="icon-button settings-button" aria-label="Agent settings" title="Agent settings">⚙</button>
@@ -84,9 +85,48 @@
           <label>Name<input id="settings-name" maxlength="80" required /></label>
           <label>Description<textarea id="settings-description" rows="3" maxlength="1000"></textarea></label>
           <label>Instructions<textarea id="settings-instructions" rows="7" maxlength="8000" placeholder="How should this agent work?"></textarea></label>
-          <p class="settings-note">Model and permission settings will be added in a later step.</p>
+          <label>OpenRouter model ID<input id="settings-model" maxlength="160" placeholder="openrouter/free" required /></label>
+          <p class="settings-note">Use a model ID from OpenRouter, such as <code>openrouter/free</code>.</p>
+          <fieldset class="permission-fieldset">
+            <legend>Agent permissions</legend>
+            <label class="permission-row"><input id="permission-file-read" type="checkbox" checked disabled /><span>Read workspace files</span></label>
+            <label class="permission-row"><input id="permission-file-create" type="checkbox" /><span>Create files</span></label>
+            <label class="permission-row"><input id="permission-file-modify" type="checkbox" /><span>Modify or delete files</span></label>
+            <label class="permission-row"><input id="permission-folder-create" type="checkbox" /><span>Create folders</span></label>
+            <label class="permission-row"><input id="permission-shell" type="checkbox" /><span>Run shell commands</span></label>
+          </fieldset>
+          <div class="key-assignment">
+            <div class="key-section-heading"><strong>Keys this agent may use</strong><span>Fallback follows this order for 401, 402, 403, or 429 responses</span></div>
+            <div id="agent-key-selection" class="key-list"></div>
+          </div>
           <button class="save-button" type="submit">Save settings</button>
         </form>
+        <section class="key-manager">
+          <div class="key-section-heading"><strong>OpenRouter API keys</strong><span id="environment-key-status"></span></div>
+          <p class="settings-note">Saved keys are encrypted for this Windows account. The full key is shown only while adding it.</p>
+          <form id="key-add-form" class="key-add-form">
+            <label>Key label<input id="key-label" maxlength="60" placeholder="Personal key" required /></label>
+            <label>API key<input id="key-secret" type="password" autocomplete="new-password" placeholder="Paste OpenRouter key" required /></label>
+            <button class="quiet-button" type="submit">Add key</button>
+          </form>
+          <div id="key-list" class="key-list"></div>
+        </section>
+        <section class="key-manager service-manager">
+          <div class="key-section-heading"><strong>Background service</strong><span id="service-status">Checking service…</span></div>
+          <label class="permission-row startup-toggle"><input id="startup-enabled" type="checkbox" /><span>Start StingClaw when I sign in</span></label>
+          <p class="settings-note">Sign-in startup launches the local web service and Telegram bot, if configured. Stopping now cancels queued and running tasks; approval requests stay saved.</p>
+          <button id="stop-service-button" type="button" class="quiet-button danger-button">Stop backend now</button>
+        </section>
+        <section class="key-manager memory-manager">
+          <div class="key-section-heading"><strong>Agent memory</strong><span>Saved facts are used when relevant</span></div>
+          <p class="settings-note">Only save information you want this agent to remember. Do not save passwords, API keys, or sensitive personal data.</p>
+          <form id="memory-add-form" class="memory-add-form">
+            <label>New memory<textarea id="memory-new-content" rows="3" maxlength="2000" placeholder="For example: Use short, direct answers."></textarea></label>
+            <label class="permission-row memory-important-toggle"><input id="memory-new-important" type="checkbox" checked /><span>Always include as important</span></label>
+            <button class="quiet-button" type="submit">Save memory</button>
+          </form>
+          <div id="memory-list" class="memory-list"></div>
+        </section>
         <div class="conversation-section">
           <div class="sidebar-section-title"><span>Recent chats</span></div>
           <nav id="conversation-list" class="conversation-list" aria-label="Conversations"></nav>
@@ -107,6 +147,14 @@
       <div class="approval-heading"><div><span class="eyebrow">REVIEW REQUIRED</span><h2>Proposed changes</h2><p id="approval-summary"></p></div><button class="icon-button" id="close-approval" aria-label="Close">×</button></div>
       <div id="approval-content" class="approval-content"></div>
       <div class="approval-footer"><p>Nothing is applied until you approve.</p><div><button id="reject-changes" class="quiet-button danger-button">Reject changes</button><button id="approve-changes" class="save-button">Approve all</button></div></div>
+    </dialog>
+
+    <dialog id="notification-dialog" class="notification-dialog">
+      <div class="notification-dialog-header">
+        <div><span class="eyebrow">UPDATES</span><h2>Notifications</h2></div>
+        <div><button id="mark-all-notifications-read" class="text-button">Mark all read</button><button id="close-notifications" class="icon-button" aria-label="Close">×</button></div>
+      </div>
+      <div id="notification-list" class="notification-list"></div>
     </dialog>
 
     <div id="toast" class="toast hidden" role="status"></div>

@@ -8,7 +8,8 @@
   },
   "scripts": {
     "typecheck": "bun check",
-    "dev": "bun run index.ts web"
+    "dev": "bun run index.ts web",
+    "backend": "bun run index.ts backend"
   },
   "devDependencies": {
     "@types/bun": "^1.4.4",

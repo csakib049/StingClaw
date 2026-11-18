@@ -28,6 +28,28 @@ db.run(`
   );
 `);
 
+const agentColumns = db.query("PRAGMA table_info(agents)").all() as { name: string }[];
+if (!agentColumns.some((column) => column.name === "model_id")) {
+  db.run("ALTER TABLE agents ADD COLUMN model_id TEXT NOT NULL DEFAULT 'openrouter/free';");
+}
+if (!agentColumns.some((column) => column.name === "api_key_ids")) {
+  db.run("ALTER TABLE agents ADD COLUMN api_key_ids TEXT NOT NULL DEFAULT '[]';");
+}
+if (!agentColumns.some((column) => column.name === "permissions_json")) {
+  db.run("ALTER TABLE agents ADD COLUMN permissions_json TEXT NOT NULL DEFAULT '{}';");
+}
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS api_keys (
+    id TEXT PRIMARY KEY,
+    provider TEXT NOT NULL CHECK (provider = 'openrouter'),
+    label TEXT NOT NULL,
+    encrypted_value TEXT NOT NULL,
+    last_four TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+`);
+
 db.run(`
   CREATE TABLE IF NOT EXISTS conversations (
     id TEXT PRIMARY KEY,
@@ -99,6 +121,30 @@ db.run(`
     task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
     action_json TEXT NOT NULL,
     created_at TEXT NOT NULL
+  );
+`);
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS agent_memories (
+    id TEXT PRIMARY KEY,
+    agent_id TEXT NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    important INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+`);
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS notifications (
+    id TEXT PRIMARY KEY,
+    agent_id TEXT NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+    task_id TEXT REFERENCES tasks(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    read_at TEXT
   );
 `);
 

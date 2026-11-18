@@ -7,6 +7,7 @@ import { Command } from "commander";
 import { runWakeup } from "./tui/wakeup";
 import { runStoredTask } from "./modes/agent/task-worker";
 import { startWebServer } from "./web/server";
+import { runBackendService } from "./modes/backend/service";
 
 
 const program = new Command();
@@ -22,6 +23,13 @@ program
             await runWakeup()
         }
      );
+
+program
+    .command("backend")
+    .description("run the local web and Telegram background service")
+    .action(async () => {
+        await runBackendService();
+    });
 
 program
     .command("web")

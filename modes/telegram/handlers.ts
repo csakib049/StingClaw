@@ -2,10 +2,11 @@ import type { Telegraf } from "telegraf";
 import { isOwner } from "./auth";
 import { WELCOME } from "./constants";
 import { clip, commandArg } from "./text";
-import { runAgent, runAsk, runPlanSteps } from "./agent-run";
 import { generatePlan } from "../plan/planner";
 import { planKeyboard, planMessage, planSessions, refreshPlanUi, type PlanSession } from "./plan-session";
 import { approvalDiff, approvalSessions } from "./approval-session";
+import { getTelegramConversation, sendTelegramTaskUpdate, submitTelegramMessage } from "./shared-tasks";
+import { createAgentMemory, deleteAgentMemory, listAgentMemories, listTasks } from "../../storage/repository";
 
 const planRequests = new Set<number>();
 const activeTaskChats = new Set<number>();
@@ -35,8 +36,12 @@ export function registerHandlers(bot: Telegraf) {
         parse_mode: "Markdown",
       });
 
-    await ctx.reply("🔍 Researching your question…");
-    void runAsk(ctx, q).catch(console.error);
+    try {
+      const { task } = await submitTelegramMessage(q);
+      await ctx.reply(`🔍 Saved task started (${task.id.slice(0, 8)}). I’ll send the answer here when it finishes.`);
+    } catch (error) {
+      await ctx.reply(error instanceof Error ? error.message : "Could not start the task.");
+    }
   });
 
   bot.command("agent", async (ctx) => {
@@ -46,20 +51,75 @@ export function registerHandlers(bot: Telegraf) {
       return ctx.reply("Usage: `/agent <task description>`", {
         parse_mode: "Markdown",
       });
-    const chatId = ctx.chat.id;
-    if (chatIsBusy(chatId)) {
-      return ctx.reply("Finish the current task or approval first.");
-    }
-
-    activeTaskChats.add(chatId);
     try {
-      await ctx.reply("🤖 Agent is working on your task…");
-      await runAgent(ctx, chatId, goal);
+      const { task } = await submitTelegramMessage(goal);
+      await ctx.reply(`🤖 Task started (${task.id.slice(0, 8)}). I’ll send updates here as it runs.`);
     } catch (error) {
-      console.error(error);
-      await ctx.reply("The agent task failed.");
-    } finally {
-      activeTaskChats.delete(chatId);
+      await ctx.reply(error instanceof Error ? error.message : "Could not start the task.");
+    }
+  });
+
+  bot.on("text", async (ctx) => {
+    if (!isOwner(ctx.chat.id) || ctx.message.text.startsWith("/")) return;
+    try {
+      const { task } = await submitTelegramMessage(ctx.message.text.trim());
+      await ctx.reply(`🤖 Task started (${task.id.slice(0, 8)}). I’ll send updates here as it runs.`);
+    } catch (error) {
+      await ctx.reply(error instanceof Error ? error.message : "Could not start the task.");
+    }
+  });
+
+  bot.command("tasks", async (ctx) => {
+    if (!isOwner(ctx.chat.id)) return;
+    const { conversation } = getTelegramConversation();
+    const tasks = listTasks(conversation.id).slice(0, 8);
+    if (!tasks.length) return ctx.reply("No saved Telegram tasks yet.");
+    return ctx.reply(tasks.map((task) => `${task.status.toUpperCase()}: ${task.goal.slice(0, 120)}${task.error ? `\n${task.error}` : ""}`).join("\n\n"));
+  });
+
+  bot.command("remember", async (ctx) => {
+    if (!isOwner(ctx.chat.id)) return;
+    const content = commandArg(ctx.message.text, "remember");
+    if (!content) return ctx.reply("Usage: `/remember <important preference or instruction>`", { parse_mode: "Markdown" });
+    try {
+      const { agent } = getTelegramConversation();
+      createAgentMemory(agent.id, content, true);
+      await ctx.reply("Saved as an important memory for this agent. You can review or delete it in the web settings.");
+    } catch (error) {
+      await ctx.reply(error instanceof Error ? error.message : "Could not save that memory.");
+    }
+  });
+
+  bot.command("memory", async (ctx) => {
+    if (!isOwner(ctx.chat.id)) return;
+    const { agent } = getTelegramConversation();
+    const memories = listAgentMemories(agent.id);
+    if (!memories.length) return ctx.reply("No saved memories yet. Use /remember to save an important preference.");
+    const formatted = memories.map((memory, index) => `${memory.important ? "⭐ " : ""}${index + 1}. ${memory.content}`).join("\n\n");
+    return ctx.reply(clip(formatted));
+  });
+
+  bot.command("forget", async (ctx) => {
+    if (!isOwner(ctx.chat.id)) return;
+    const index = Number(commandArg(ctx.message.text, "forget"));
+    if (!Number.isInteger(index) || index < 1) return ctx.reply("Usage: `/forget <number from /memory>`", { parse_mode: "Markdown" });
+    const { agent } = getTelegramConversation();
+    const memory = listAgentMemories(agent.id)[index - 1];
+    if (!memory) return ctx.reply("No memory exists at that number. Use /memory to see the saved list.");
+    deleteAgentMemory(agent.id, memory.id);
+    return ctx.reply("Memory deleted.");
+  });
+
+  bot.action(/^shared_(diff|approve|reject):([\w-]+)$/, async (ctx) => {
+    if (!isOwner(ctx.chat!.id)) return ctx.answerCbQuery();
+    const action = ctx.match[1]!;
+    const taskId = ctx.match[2]!;
+    try {
+      await sendTelegramTaskUpdate(ctx.telegram, ctx.chat!.id, taskId,
+        action === "approve" ? true : action === "reject" ? false : undefined);
+      await ctx.answerCbQuery(action === "diff" ? "Diff sent" : action === "approve" ? "Approved" : "Rejected");
+    } catch (error) {
+      await ctx.answerCbQuery(error instanceof Error ? error.message : "Could not process approval.");
     }
   });
   bot.command("plan", async (ctx) => {
@@ -152,7 +212,12 @@ export function registerHandlers(bot: Telegraf) {
     try {
       await ctx.editMessageText(`🚀 Executing ${steps.length} step(s)…\n\n${list}`);
       await ctx.answerCbQuery();
-      await runPlanSteps(ctx, chatId, plan, steps);
+      const taskGoal = [
+        `Carry out the following user-approved plan for: ${plan.goal}`,
+        ...steps.map((step, index) => `${index + 1}. ${step.title}\n${step.description}`),
+      ].join("\n\n");
+      const { task } = await submitTelegramMessage(taskGoal);
+      await ctx.reply(`Plan execution started as saved task ${task.id.slice(0, 8)}. I’ll send progress and results here.`);
     } catch (error) {
       console.error(error);
       await ctx.reply("The plan execution failed.");

@@ -37,6 +37,20 @@ export interface AgentConfig {
   };
 }
 
+export interface AgentPermissions {
+  allowShellExecution: boolean;
+  allowFileModification: boolean;
+  allowFileCreation: boolean;
+  allowFolderCreation: boolean;
+}
+
+export const defaultAgentPermissions = (): AgentPermissions => ({
+  allowShellExecution: true,
+  allowFileModification: true,
+  allowFileCreation: true,
+  allowFolderCreation: true,
+});
+
 export const defaultAgentConfig = (): AgentConfig => ({
   codebasePath: process.cwd(),
   maxFileSizeToRead: 1024 * 1024 ,

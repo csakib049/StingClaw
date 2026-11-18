@@ -3,25 +3,41 @@ import { serve, type Server } from "bun";
 import { ActionTracker } from "../modes/agent/action-tracker";
 import { ToolExecutor } from "../modes/agent/tool-executer";
 import { defaultAgentConfig } from "../modes/agent/types";
+import type { AgentPermissions } from "../modes/agent/types";
 import { launchTaskWorker } from "../modes/agent/task-worker";
+import { isStartupEnabled, setStartupEnabled } from "../modes/backend/startup";
 import {
   addTaskEvent,
+  createApiKey,
   createAgent,
   createConversation,
   createMessage,
   createTask,
+  createTaskNotification,
+  createAgentMemory,
   getAgent,
   getConversation,
   getTask,
+  listApiKeys,
   listAgents,
   listConversations,
   listMessages,
+  listAgentMemories,
+  listNotifications,
+  countUnreadNotifications,
+  listActiveTasks,
   listTaskActions,
   listTaskEvents,
   listTasks,
+  deleteApiKey,
+  deleteAgentMemory,
+  markAllNotificationsRead,
+  markNotificationRead,
+  markTaskNotificationsRead,
   recordTaskApproval,
   retryTask,
   updateAgent,
+  updateAgentMemory,
   updateTaskStatus,
 } from "../storage/repository";
 
@@ -110,6 +126,79 @@ async function handleApi(request: Request, port: number): Promise<Response> {
   }
 
   try {
+    if (segments.length === 2 && segments[0] === "api" && segments[1] === "service" && method === "GET") {
+      return json({ running: true, startupEnabled: isStartupEnabled(), startupSupported: process.platform === "win32" });
+    }
+
+    if (segments.length === 2 && segments[0] === "api" && segments[1] === "notifications" && method === "GET") {
+      const notifications = listNotifications();
+      return json({
+        notifications,
+        unreadCount: countUnreadNotifications(),
+      });
+    }
+
+    if (segments.length === 3 && segments[0] === "api" && segments[1] === "notifications" && segments[2] === "read-all" && method === "POST") {
+      return json({ updated: markAllNotificationsRead() });
+    }
+
+    if (segments.length === 3 && segments[0] === "api" && segments[1] === "notifications" && method === "POST") {
+      return markNotificationRead(segments[2]!) ? json({ read: true }) : error("Notification not found.", 404);
+    }
+
+    if (segments.length === 2 && segments[0] === "api" && segments[1] === "service" && method === "POST") {
+      const body = await readJson(request);
+      if (body.action === "startup" && typeof body.enabled === "boolean") {
+        try {
+          setStartupEnabled(body.enabled);
+          return json({ running: true, startupEnabled: isStartupEnabled(), startupSupported: process.platform === "win32" });
+        } catch (cause) {
+          return error(cause instanceof Error ? cause.message : "Could not update startup settings.", 400);
+        }
+      }
+      if (body.action === "stop") {
+        for (const task of listActiveTasks()) {
+          if (task.status === "queued") {
+            updateTaskStatus({ taskId: task.id, status: "cancelled", error: "Backend stopped before this task started." });
+            addTaskEvent({ taskId: task.id, eventType: "cancelled", message: "Backend stopped before this task started." });
+          } else if (task.status === "running" && task.worker_pid) {
+            try {
+              process.kill(task.worker_pid, "SIGTERM");
+            } catch {
+              updateTaskStatus({ taskId: task.id, status: "cancelled", error: "Backend stopped while this task was running." });
+              addTaskEvent({ taskId: task.id, eventType: "cancelled", message: "Backend stopped while this task was running." });
+            }
+          }
+        }
+        setTimeout(() => process.exit(0), 1200);
+        return json({ stopping: true }, 202);
+      }
+      return error("Unknown service action.", 400);
+    }
+
+    if (segments.length === 2 && segments[0] === "api" && segments[1] === "keys" && method === "GET") {
+      return json({ keys: listApiKeys(), environmentKeyAvailable: Boolean(process.env.OPENROUTER_API_KEY?.trim()) });
+    }
+
+    if (segments.length === 2 && segments[0] === "api" && segments[1] === "keys" && method === "POST") {
+      const body = await readJson(request);
+      const label = typeof body.label === "string" ? body.label.trim() : "";
+      const key = typeof body.key === "string" ? body.key.trim() : "";
+      if (!label || label.length > 60) return error("Enter a label up to 60 characters.", 400);
+      if (key.length < 16 || key.length > 512 || /\s/.test(key)) return error("The API key format is invalid.", 400);
+      if (body.provider !== undefined && body.provider !== "openrouter") return error("Only OpenRouter keys are supported in this phase.", 400);
+      try {
+        return json({ key: createApiKey(label, key) }, 201);
+      } catch (cause) {
+        const message = cause instanceof Error ? cause.message : "Could not securely save the API key.";
+        return error(message, 400);
+      }
+    }
+
+    if (segments.length === 3 && segments[0] === "api" && segments[1] === "keys" && method === "DELETE") {
+      return deleteApiKey(segments[2]!) ? json({ deleted: true }) : error("API key not found.", 404);
+    }
+
     if (segments.length === 2 && segments[0] === "api" && segments[1] === "agents" && method === "GET") {
       let agents = listAgents();
       if (agents.length === 0) {
@@ -129,10 +218,12 @@ async function handleApi(request: Request, port: number): Promise<Response> {
       if (!name || name.length > 80) return error("Name is required and must be under 80 characters.", 400);
       const description = typeof body.description === "string" ? body.description.trim() : "";
       const instructions = typeof body.instructions === "string" ? body.instructions.trim() : "";
+      const modelId = typeof body.modelId === "string" ? body.modelId.trim() : process.env.OPENROUTER_DEFAULT_MODEL ?? "openrouter/free";
       if (description.length > 1000 || instructions.length > 8000) {
         return error("Description or instructions are too long.", 400);
       }
-      return json({ agent: createAgent({ name, description, instructions }) }, 201);
+      if (!/^[\w./:-]{1,160}$/.test(modelId)) return error("Enter a valid OpenRouter model ID.", 400);
+      return json({ agent: createAgent({ name, description, instructions, modelId }) }, 201);
     }
 
     if (segments.length === 3 && segments[0] === "api" && segments[1] === "agents" && method === "PATCH") {
@@ -142,10 +233,72 @@ async function handleApi(request: Request, port: number): Promise<Response> {
       const name = typeof body.name === "string" ? body.name.trim() : agent.name;
       const description = typeof body.description === "string" ? body.description.trim() : agent.description;
       const instructions = typeof body.instructions === "string" ? body.instructions.trim() : agent.instructions;
+      const modelId = typeof body.modelId === "string" ? body.modelId.trim() : agent.model_id;
+      const apiKeyIds = body.apiKeyIds === undefined ? agent.api_key_ids : body.apiKeyIds;
+      const permissions = body.permissions === undefined
+        ? agent.permissions as unknown as Record<string, unknown>
+        : body.permissions as Record<string, unknown>;
       if (!name || name.length > 80 || description.length > 1000 || instructions.length > 8000) {
         return error("Agent settings are invalid or too long.", 400);
       }
-      return json({ agent: updateAgent(segments[2]!, { name, description, instructions }) });
+      if (!/^[\w./:-]{1,160}$/.test(modelId)) return error("Enter a valid OpenRouter model ID.", 400);
+      if (!Array.isArray(apiKeyIds) || apiKeyIds.length > 20 || apiKeyIds.some((id) => typeof id !== "string")) {
+        return error("The selected API keys are invalid.", 400);
+      }
+      const existingKeyIds = new Set(listApiKeys().map((key) => key.id));
+      if (apiKeyIds.some((id) => !existingKeyIds.has(id))) return error("A selected API key no longer exists.", 400);
+      const permissionNames: (keyof AgentPermissions)[] = [
+        "allowShellExecution", "allowFileModification", "allowFileCreation", "allowFolderCreation",
+      ];
+      if (permissionNames.some((key) => typeof permissions[key] !== "boolean")) {
+        return error("Choose a value for each agent permission.", 400);
+      }
+      const validatedPermissions = Object.fromEntries(
+        permissionNames.map((key) => [key, permissions[key]]),
+      ) as unknown as AgentPermissions;
+      return json({ agent: updateAgent(segments[2]!, {
+        name, description, instructions, modelId,
+        apiKeyIds: [...new Set(apiKeyIds as string[])],
+        permissions: validatedPermissions,
+      }) });
+    }
+
+    if (segments.length === 4 && segments[0] === "api" && segments[1] === "agents" && segments[3] === "memories") {
+      const agent = getAgent(segments[2]!);
+      if (!agent) return error("Agent not found.", 404);
+      if (method === "GET") return json({ memories: listAgentMemories(agent.id) });
+      if (method === "POST") {
+        const body = await readJson(request);
+        if (typeof body.content !== "string" || (body.important !== undefined && typeof body.important !== "boolean")) {
+          return error("Memory content or importance setting is invalid.", 400);
+        }
+        try {
+          return json({ memory: createAgentMemory(agent.id, body.content, body.important === true) }, 201);
+        } catch (cause) {
+          return error(cause instanceof Error ? cause.message : "Could not save this memory.", 400);
+        }
+      }
+    }
+
+    if (segments.length === 3 && segments[0] === "api" && segments[1] === "memories") {
+      if (method === "PATCH") {
+        const body = await readJson(request);
+        const agentId = typeof body.agentId === "string" ? body.agentId : "";
+        const agent = getAgent(agentId);
+        if (!agent) return error("Agent not found.", 404);
+        if (typeof body.content !== "string" || typeof body.important !== "boolean") {
+          return error("Memory content or importance setting is invalid.", 400);
+        }
+        try {
+          return json({ memory: updateAgentMemory(agent.id, segments[2]!, body.content, body.important) });
+        } catch (cause) {
+          return error(cause instanceof Error ? cause.message : "Could not update this memory.", 400);
+        }
+      }
+      if (method === "DELETE") {
+        const agentId = url.searchParams.get("agentId") ?? "";
+        return deleteAgentMemory(agentId, segments[2]!) ? json({ deleted: true }) : error("Memory not found.", 404);
+      }
     }
 
     if (segments.length === 4 && segments[0] === "api" && segments[1] === "agents" && segments[3] === "conversations") {
@@ -203,6 +356,7 @@ async function handleApi(request: Request, port: number): Promise<Response> {
           const reason = cause instanceof Error ? cause.message : String(cause);
           updateTaskStatus({ taskId: task.id, status: "failed", error: reason });
           addTaskEvent({ taskId: task.id, eventType: "failed", message: reason });
+          createTaskNotification({ taskId: task.id, type: "failed", title: "Task could not start", message: "StingClaw could not start the worker. Open task details to see the error." });
         }
 
         return json({ message, task: getTask(task.id) }, 202);
@@ -235,6 +389,7 @@ async function handleApi(request: Request, port: number): Promise<Response> {
             for (const item of pending) tracker.updateStatus(item.id, "rejected", false);
             recordTaskApproval(task.id, tracker.getActions(), "completed", task.result, null);
             addTaskEvent({ taskId: task.id, eventType: "approval_rejected", message: "The proposed changes were rejected." });
+            markTaskNotificationsRead(task.id);
             return json({ task: getTask(task.id) });
           }
 
@@ -252,6 +407,8 @@ async function handleApi(request: Request, port: number): Promise<Response> {
             const message = cause instanceof Error ? cause.message : String(cause);
             updateTaskStatus({ taskId: task.id, status: "failed", result: task.result, error: message });
             addTaskEvent({ taskId: task.id, eventType: "failed", message });
+            markTaskNotificationsRead(task.id);
+            createTaskNotification({ taskId: task.id, type: "failed", title: "Approved changes could not be applied", message: "StingClaw could not apply the approved changes. Open task details to see the error." });
             return json({ task: getTask(task.id), error: message }, 500);
           } finally {
             executor.clearStaging();
@@ -261,6 +418,8 @@ async function handleApi(request: Request, port: number): Promise<Response> {
             const message = result.failed.map((item) => `${item.target}: ${item.error}`).join("\n");
             updateTaskStatus({ taskId: task.id, status: "failed", result: task.result, error: message });
             addTaskEvent({ taskId: task.id, eventType: "failed", message });
+            markTaskNotificationsRead(task.id);
+            createTaskNotification({ taskId: task.id, type: "failed", title: "Approved changes could not be applied", message: "StingClaw could not apply the approved changes. Open task details to see the error." });
           } else {
             updateTaskStatus({ taskId: task.id, status: "completed", result: task.result });
             addTaskEvent({
@@ -268,6 +427,8 @@ async function handleApi(request: Request, port: number): Promise<Response> {
               eventType: "completed",
               message: `Approved operations applied: ${result.applied.join(", ") || "none"}.`,
             });
+            markTaskNotificationsRead(task.id);
+            createTaskNotification({ taskId: task.id, type: "completed", title: "Approved changes applied", message: "Your approved changes were applied." });
           }
           return json({ task: getTask(task.id), applied: result.applied, failed: result.failed });
         }

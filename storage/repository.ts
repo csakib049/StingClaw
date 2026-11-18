@@ -1,13 +1,48 @@
 import { db } from "./database";
 import type { ActionLog } from "../modes/agent/types";
+import { defaultAgentPermissions, type AgentPermissions } from "../modes/agent/types";
+import { decryptSecret, encryptSecret } from "./secret-store";
 
 export interface Agent {
     id: string;
     name: string;
     description: string;
     instructions: string;
+    model_id: string;
+    api_key_ids: string[];
+    permissions: AgentPermissions;
     created_at: string;
     updated_at: string;
+}
+
+export interface ApiKeyInfo {
+    id: string;
+    provider: "openrouter";
+    label: string;
+    last_four: string;
+    created_at: string;
+}
+
+export interface ApiKeyCredential extends ApiKeyInfo {
+    secret: string;
+}
+
+type AgentRow = Omit<Agent, "api_key_ids" | "permissions"> & {
+    api_key_ids: string;
+    permissions_json: string;
+};
+
+function mapAgent(row: AgentRow): Agent {
+    let apiKeyIds: string[] = [];
+    let permissions: Partial<AgentPermissions> = {};
+    try { apiKeyIds = JSON.parse(row.api_key_ids) as string[]; } catch { /* use defaults */ }
+    try { permissions = JSON.parse(row.permissions_json) as Partial<AgentPermissions>; } catch { /* use defaults */ }
+    const { permissions_json: _permissionsJson, ...base } = row;
+    return {
+        ...base,
+        api_key_ids: apiKeyIds,
+        permissions: { ...defaultAgentPermissions(), ...permissions },
+    };
 }
 
 export interface Conversation {
@@ -18,10 +53,156 @@ export interface Conversation {
     updated_at: string;
 }
 
+export interface AgentMemory {
+  id: string;
+  agent_id: string;
+  content: string;
+  important: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AppNotification {
+  id: string;
+  agent_id: string;
+  task_id: string | null;
+  conversation_id: string | null;
+  type: string;
+  title: string;
+  message: string;
+  created_at: string;
+  read_at: string | null;
+}
+
+const SECRET_LIKE_PATTERNS = [
+  /(?:api[_ -]?key|password|passphrase|secret|access[_ -]?token|bearer)\s*[:=]\s*\S+/i,
+  /\bsk-or-v1-[A-Za-z0-9_-]{16,}\b/i,
+  /\b(?:ghp|github_pat|xox[baprs])-[A-Za-z0-9_-]{16,}\b/i,
+  /\bAKIA[0-9A-Z]{16}\b/,
+];
+
+function validateMemoryContent(content: string): string {
+  const clean = content.trim();
+  if (!clean || clean.length > 2000) throw new Error("Memory must be between 1 and 2,000 characters.");
+  if (SECRET_LIKE_PATTERNS.some((pattern) => pattern.test(clean))) {
+    throw new Error("This looks like a secret or credential. StingClaw does not save it to memory.");
+  }
+  return clean;
+}
+
+export function listAgentMemories(agentId: string): AgentMemory[] {
+  return db.query(`
+    SELECT id, agent_id, content, important, created_at, updated_at
+    FROM agent_memories
+    WHERE agent_id = $agent_id
+    ORDER BY important DESC, updated_at DESC
+  `).all({ $agent_id: agentId }).map((row) => {
+    const memory = row as Omit<AgentMemory, "important"> & { important: number };
+    return { ...memory, important: Boolean(memory.important) };
+  });
+}
+
+export function createAgentMemory(agentId: string, content: string, important = false): AgentMemory {
+  if (!getAgent(agentId)) throw new Error("Agent not found.");
+  const clean = validateMemoryContent(content);
+  const now = new Date().toISOString();
+  const memory = { id: crypto.randomUUID(), agent_id: agentId, content: clean, important, created_at: now, updated_at: now };
+  db.query(`
+    INSERT INTO agent_memories (id, agent_id, content, important, created_at, updated_at)
+    VALUES ($id, $agent_id, $content, $important, $created_at, $updated_at)
+  `).run({
+    $id: memory.id, $agent_id: agentId, $content: clean,
+    $important: important ? 1 : 0, $created_at: now, $updated_at: now,
+  });
+  return memory;
+}
+
+export function updateAgentMemory(
+  agentId: string,
+  memoryId: string,
+  content: string,
+  important: boolean,
+): AgentMemory {
+  const clean = validateMemoryContent(content);
+  const updated = db.query(`
+    UPDATE agent_memories
+    SET content = $content, important = $important, updated_at = $updated_at
+    WHERE id = $id AND agent_id = $agent_id
+  `).run({
+    $id: memoryId, $agent_id: agentId, $content: clean,
+    $important: important ? 1 : 0, $updated_at: new Date().toISOString(),
+  });
+  if (updated.changes === 0) throw new Error("Memory not found for this agent.");
+  return listAgentMemories(agentId).find((memory) => memory.id === memoryId)!;
+}
+
+export function deleteAgentMemory(agentId: string, memoryId: string): boolean {
+  return db.query("DELETE FROM agent_memories WHERE id = $id AND agent_id = $agent_id")
+    .run({ $id: memoryId, $agent_id: agentId }).changes > 0;
+}
+
+export function createTaskNotification(input: {
+  taskId: string;
+  type: "completed" | "failed" | "approval" | "cancelled";
+  title: string;
+  message: string;
+}): AppNotification {
+  const task = getTask(input.taskId);
+  if (!task) throw new Error(`Task not found: ${input.taskId}`);
+  const notification: AppNotification = {
+    id: crypto.randomUUID(), agent_id: task.agent_id, task_id: task.id,
+    conversation_id: task.conversation_id, type: input.type,
+    title: input.title, message: input.message,
+    created_at: new Date().toISOString(), read_at: null,
+  };
+  db.query(`
+    INSERT INTO notifications (id, agent_id, task_id, type, title, message, created_at, read_at)
+    VALUES ($id, $agent_id, $task_id, $type, $title, $message, $created_at, NULL)
+  `).run({
+    $id: notification.id, $agent_id: notification.agent_id, $task_id: notification.task_id,
+    $type: notification.type, $title: notification.title, $message: notification.message,
+    $created_at: notification.created_at,
+  });
+  return notification;
+}
+
+export function listNotifications(limit = 50): AppNotification[] {
+  return db.query(`
+    SELECT n.id, n.agent_id, n.task_id, t.conversation_id, n.type, n.title, n.message, n.created_at, n.read_at
+    FROM notifications n
+    LEFT JOIN tasks t ON t.id = n.task_id
+    ORDER BY n.created_at DESC
+    LIMIT $limit
+  `).all({ $limit: limit }) as AppNotification[];
+}
+
+export function countUnreadNotifications(): number {
+  const row = db.query("SELECT COUNT(*) AS count FROM notifications WHERE read_at IS NULL").get() as { count: number };
+  return row.count;
+}
+
+export function markNotificationRead(id: string): boolean {
+  return db.query("UPDATE notifications SET read_at = COALESCE(read_at, $read_at) WHERE id = $id")
+    .run({ $id: id, $read_at: new Date().toISOString() }).changes > 0;
+}
+
+export function markTaskNotificationsRead(taskId: string): number {
+  return db.query("UPDATE notifications SET read_at = $read_at WHERE task_id = $task_id AND read_at IS NULL")
+    .run({ $task_id: taskId, $read_at: new Date().toISOString() }).changes;
+}
+
+export function markAllNotificationsRead(): number {
+  return db.query("UPDATE notifications SET read_at = $read_at WHERE read_at IS NULL")
+    .run({ $read_at: new Date().toISOString() }).changes;
+}
+
 export function createAgent(input: {
     name: string;
     description?: string;
     instructions?: string;
+    modelId?: string;
+    apiKeyIds?: string[];
+    permissions?: AgentPermissions;
 }): Agent {
     const now = new Date().toISOString();
 
@@ -30,20 +211,26 @@ export function createAgent(input: {
         name: input.name,
         description: input.description ?? "",
         instructions: input.instructions ?? "",
+        model_id: input.modelId ?? process.env.OPENROUTER_DEFAULT_MODEL ?? "openrouter/free",
+        api_key_ids: input.apiKeyIds ?? [],
+        permissions: input.permissions ?? defaultAgentPermissions(),
         created_at: now,
         updated_at: now,
     };
 
     db.query(`
     INSERT INTO agents (
-      id, name, description, instructions, created_at, updated_at
+      id, name, description, instructions, model_id, api_key_ids, permissions_json, created_at, updated_at
     )
-    VALUES ($id, $name, $description, $instructions, $created_at, $updated_at)
+    VALUES ($id, $name, $description, $instructions, $model_id, $api_key_ids, $permissions_json, $created_at, $updated_at)
   `).run({
         $id: agent.id,
         $name: agent.name,
         $description: agent.description,
         $instructions: agent.instructions,
+        $model_id: agent.model_id,
+        $api_key_ids: JSON.stringify(agent.api_key_ids),
+        $permissions_json: JSON.stringify(agent.permissions),
         $created_at: agent.created_at,
         $updated_at: agent.updated_at,
     });
@@ -56,23 +243,35 @@ export function createAgent(input: {
 
 export function getAgent(id: string): Agent | null {
     const row = db.query(`
-    SELECT id, name, description, instructions, created_at, updated_at
+    SELECT id, name, description, instructions, model_id, api_key_ids, permissions_json, created_at, updated_at
     FROM agents
     WHERE id = $id
-  `).get({ $id: id }) as Agent | null;
+  `).get({ $id: id }) as AgentRow | null;
 
-    return row ?? null;
+    return row ? mapAgent(row) : null;
 }
 
 export function updateAgent(
   id: string,
-  input: { name: string; description: string; instructions: string },
+  input: {
+    name: string;
+    description: string;
+    instructions: string;
+    modelId?: string;
+    apiKeyIds?: string[];
+    permissions?: AgentPermissions;
+  },
 ): Agent {
+  const current = getAgent(id);
+  if (!current) throw new Error(`Agent not found: ${id}`);
   const update = db.query(`
     UPDATE agents
     SET name = $name,
         description = $description,
         instructions = $instructions,
+        model_id = $model_id,
+        api_key_ids = $api_key_ids,
+        permissions_json = $permissions_json,
         updated_at = $updated_at
     WHERE id = $id
   `).run({
@@ -80,6 +279,9 @@ export function updateAgent(
     $name: input.name.trim(),
     $description: input.description.trim(),
     $instructions: input.instructions.trim(),
+    $model_id: input.modelId ?? current.model_id,
+    $api_key_ids: JSON.stringify(input.apiKeyIds ?? current.api_key_ids),
+    $permissions_json: JSON.stringify(input.permissions ?? current.permissions),
     $updated_at: new Date().toISOString(),
   });
 
@@ -88,11 +290,79 @@ export function updateAgent(
 }
 
 export function listAgents(): Agent[] {
-    return db.query(`
-    SELECT id, name, description, instructions, created_at, updated_at
+    const rows = db.query(`
+    SELECT id, name, description, instructions, model_id, api_key_ids, permissions_json, created_at, updated_at
     FROM agents
     ORDER BY created_at ASC
-  `).all() as Agent[];
+  `).all() as AgentRow[];
+  return rows.map(mapAgent);
+}
+
+export function listApiKeys(): ApiKeyInfo[] {
+  return db.query(`
+    SELECT id, provider, label, last_four, created_at
+    FROM api_keys
+    ORDER BY created_at ASC
+  `).all() as ApiKeyInfo[];
+}
+
+export function createApiKey(label: string, secret: string): ApiKeyInfo {
+  const record: ApiKeyInfo = {
+    id: crypto.randomUUID(),
+    provider: "openrouter",
+    label: label.trim(),
+    last_four: secret.slice(-4),
+    created_at: new Date().toISOString(),
+  };
+  const encryptedValue = encryptSecret(secret);
+  db.query(`
+    INSERT INTO api_keys (id, provider, label, encrypted_value, last_four, created_at)
+    VALUES ($id, $provider, $label, $encrypted_value, $last_four, $created_at)
+  `).run({
+    $id: record.id,
+    $provider: record.provider,
+    $label: record.label,
+    $encrypted_value: encryptedValue,
+    $last_four: record.last_four,
+    $created_at: record.created_at,
+  });
+  return record;
+}
+
+export function getApiKeyCredentials(ids?: readonly string[]): ApiKeyCredential[] {
+  if (!ids?.length) return [];
+  const find = db.query(`
+    SELECT id, provider, label, last_four, created_at, encrypted_value
+    FROM api_keys WHERE id = $id
+  `);
+  return ids.flatMap((id) => {
+    const row = find.get({ $id: id }) as (ApiKeyInfo & { encrypted_value: string }) | null;
+    return row ? [{
+      id: row.id,
+      provider: row.provider,
+      label: row.label,
+      last_four: row.last_four,
+      created_at: row.created_at,
+      secret: decryptSecret(row.encrypted_value),
+    }] : [];
+  });
+}
+
+export function deleteApiKey(id: string): boolean {
+  const remove = db.transaction(() => {
+    const agents = listAgents();
+    for (const agent of agents) {
+      if (!agent.api_key_ids.includes(id)) continue;
+      updateAgent(agent.id, {
+        name: agent.name,
+        description: agent.description,
+        instructions: agent.instructions,
+        apiKeyIds: agent.api_key_ids.filter((keyId) => keyId !== id),
+      });
+    }
+    return db.query("DELETE FROM api_keys WHERE id = $id").run({ $id: id }).changes > 0;
+  });
+  return remove();
 }
 
 export function createConversation(
@@ -418,6 +688,17 @@ export function listRecentTasks(limit = 30): Task[] {
     ORDER BY created_at DESC
     LIMIT $limit
   `).all({ $limit: limit }) as Task[];
+}
+
+export function listActiveTasks(): Task[] {
+  return db.query(`
+    SELECT
+      id, agent_id, conversation_id, status, goal,
+      result, error, created_at, updated_at, worker_pid, workspace_path
+    FROM tasks
+    WHERE status IN ('queued', 'running')
+    ORDER BY created_at ASC
+  `).all() as Task[];
 }
 
 export function claimQueuedTask(taskId: string, workerPid: number): boolean {
