@@ -19,8 +19,10 @@ import {
   listMessages,
   listTaskActions,
   listTaskEvents,
+  listPendingScheduledNotifications,
   listTasks,
   markTaskNotificationsRead,
+  markScheduledNotificationTelegramSent,
   recordTaskApproval,
   updateTaskStatus,
 } from "../../storage/repository";
@@ -73,8 +75,6 @@ export async function sendTelegramTaskUpdate(
 ) {
   const task = getTask(taskId);
   if (!task || task.status !== "waiting_approval") throw new Error("This task is no longer waiting for approval.");
-  const { conversation } = getTelegramConversation();
-  if (task.conversation_id !== conversation.id) throw new Error("That task does not belong to the Telegram conversation.");
   const tracker = new ActionTracker();
   tracker.restore(listTaskActions(task.id));
   const pending = tracker.getPendingMutations();
@@ -179,6 +179,24 @@ export function startTelegramTaskSync(bot: Telegraf, ownerId: number): () => voi
           if (event.event_type === "failed") await bot.telegram.sendMessage(ownerId, clip(`❌ Task failed: ${event.message}`, 3900));
         }
         eventCursors.set(task.id, events.length);
+      }
+
+      for (const notification of listPendingScheduledNotifications()) {
+        if (notification.type === "approval") {
+          await bot.telegram.sendMessage(ownerId,
+            `🔐 Scheduled job “${notification.schedule_name}” needs your approval. ${notification.message}`,
+            Markup.inlineKeyboard([
+              [Markup.button.callback("Show diff", `shared_diff:${notification.task_id}`)],
+              [Markup.button.callback("Approve", `shared_approve:${notification.task_id}`), Markup.button.callback("Reject", `shared_reject:${notification.task_id}`)],
+            ]),
+          );
+        } else {
+          const result = notification.type === "completed" && notification.task_result
+            ? `\n\n${notification.task_result}`
+            : `\n${notification.message}`;
+          await bot.telegram.sendMessage(ownerId, clip(`🔔 ${notification.title}\nScheduled job: ${notification.schedule_name}${result}`, 3900));
+        }
+        markScheduledNotificationTelegramSent(notification.id);
       }
     } catch (cause) {
       console.error("Telegram task sync failed:", cause);

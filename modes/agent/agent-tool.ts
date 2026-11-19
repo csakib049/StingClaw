@@ -2,8 +2,12 @@ import { tool } from "ai";
 import { z } from "zod";
 import type { ToolExecutor } from "./tool-executer";
 
-export function createAgentTools(executor: ToolExecutor) {
-  return {
+export function createAgentTools(
+  executor: ToolExecutor,
+  delegate?: (agentId: string, goal: string) => Promise<string>,
+  availableAgents: { id: string; name: string }[] = [],
+) {
+  const tools = {
     read_file: tool({
       description:
         "Read a text file from the workspace. Use a path relative to the project root.",
@@ -107,5 +111,18 @@ export function createAgentTools(executor: ToolExecutor) {
       }),
       execute: async ({ path: p }) => executor.readSkill(p),
     }),
+  };
+  return {
+    ...tools,
+    ...(delegate ? {
+      delegate_to_agent: tool({
+        description: `Ask a specialized agent to research a subtask. Delegated agents are read-only and cannot create or change files or run shell commands. Use at most three delegates and only when it helps. Available agents: ${availableAgents.map((agent) => `${agent.name} (ID: ${agent.id})`).join(", ") || "none"}.`,
+        inputSchema: z.object({
+          agent_id: z.string().describe("ID of a different saved agent from the available agents list."),
+          goal: z.string().min(1).max(4000).describe("A specific research or analysis subtask."),
+        }),
+        execute: async ({ agent_id, goal }) => delegate(agent_id, goal),
+      }),
+    } : {}),
   };
 }

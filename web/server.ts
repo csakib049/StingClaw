@@ -6,6 +6,7 @@ import { defaultAgentConfig } from "../modes/agent/types";
 import type { AgentPermissions } from "../modes/agent/types";
 import { launchTaskWorker } from "../modes/agent/task-worker";
 import { isStartupEnabled, setStartupEnabled } from "../modes/backend/startup";
+import { isValidTimeZone, nextScheduledRun, type ScheduleFrequency } from "../modes/scheduler/time";
 import {
   addTaskEvent,
   createApiKey,
@@ -27,8 +28,16 @@ import {
   countUnreadNotifications,
   listActiveTasks,
   listTaskActions,
+  listChildTasks,
   listTaskEvents,
   listTasks,
+  createScheduledJob,
+  deleteScheduledJob,
+  getScheduledJob,
+  listScheduledJobs,
+  listScheduledJobRuns,
+  setScheduledJobEnabled,
+  updateScheduledJob,
   deleteApiKey,
   deleteAgentMemory,
   markAllNotificationsRead,
@@ -248,7 +257,7 @@ async function handleApi(request: Request, port: number): Promise<Response> {
       const existingKeyIds = new Set(listApiKeys().map((key) => key.id));
       if (apiKeyIds.some((id) => !existingKeyIds.has(id))) return error("A selected API key no longer exists.", 400);
       const permissionNames: (keyof AgentPermissions)[] = [
-        "allowShellExecution", "allowFileModification", "allowFileCreation", "allowFolderCreation",
+        "allowWebAccess", "allowShellExecution", "allowFileModification", "allowFileCreation", "allowFolderCreation",
       ];
       if (permissionNames.some((key) => typeof permissions[key] !== "boolean")) {
         return error("Choose a value for each agent permission.", 400);
@@ -261,6 +270,102 @@ async function handleApi(request: Request, port: number): Promise<Response> {
         apiKeyIds: [...new Set(apiKeyIds as string[])],
         permissions: validatedPermissions,
       }) });
+    }
+
+    if (segments.length === 4 && segments[0] === "api" && segments[1] === "agents" && segments[3] === "schedules") {
+      const agent = getAgent(segments[2]!);
+      if (!agent) return error("Agent not found.", 404);
+      if (method === "GET") {
+        return json({ schedules: listScheduledJobs(agent.id).map((schedule) => ({
+          ...schedule,
+          runs: listScheduledJobRuns(schedule.id, 10),
+        })) });
+      }
+      if (method === "POST") {
+        const body = await readJson(request);
+        const name = typeof body.name === "string" ? body.name.trim() : "";
+        const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
+        const frequency = body.frequency;
+        const timeLocal = typeof body.timeLocal === "string" ? body.timeLocal : "";
+        const timezone = typeof body.timezone === "string" ? body.timezone : "";
+        const weekday = body.weekday === null ? null : typeof body.weekday === "number" ? body.weekday : null;
+        const permissions = body.permissions as Record<string, unknown> | undefined;
+        const permissionNames: (keyof AgentPermissions)[] = [
+          "allowWebAccess", "allowShellExecution", "allowFileModification", "allowFileCreation", "allowFolderCreation",
+        ];
+        if (!name || name.length > 80 || !prompt || prompt.length > 10_000) return error("Enter a schedule name and a prompt under 10,000 characters.", 400);
+        if (frequency !== "daily" && frequency !== "weekly") return error("Choose a daily or weekly schedule.", 400);
+        if (frequency === "weekly" && (weekday === null || !Number.isInteger(weekday) || weekday < 0 || weekday > 6)) return error("Choose a weekday for a weekly schedule.", 400);
+        if (!isValidTimeZone(timezone)) return error("Choose a valid time zone.", 400);
+        if (!permissions || permissionNames.some((key) => typeof permissions[key] !== "boolean")) return error("Choose each scheduled task permission.", 400);
+        try {
+          const scheduleFrequency = frequency as ScheduleFrequency;
+          const nextRunAt = nextScheduledRun({ frequency: scheduleFrequency, timeLocal, weekday, timeZone: timezone });
+          const conversation = createConversation(agent.id, `Schedule: ${name}`);
+          const schedule = createScheduledJob({
+            agentId: agent.id,
+            conversationId: conversation.id,
+            name,
+            prompt,
+            frequency: scheduleFrequency,
+            timeLocal,
+            weekday: scheduleFrequency === "weekly" ? weekday : null,
+            timezone,
+            permissions: Object.fromEntries(permissionNames.map((key) => [key, permissions[key]])) as unknown as AgentPermissions,
+            nextRunAt,
+          });
+          return json({ schedule: { ...schedule, runs: [] } }, 201);
+        } catch (cause) {
+          return error(cause instanceof Error ? cause.message : "Could not create this schedule.", 400);
+        }
+      }
+    }
+
+    if (segments.length === 3 && segments[0] === "api" && segments[1] === "schedules") {
+      const schedule = getScheduledJob(segments[2]!);
+      if (!schedule) return error("Scheduled job not found.", 404);
+      if (method === "GET") return json({ schedule, runs: listScheduledJobRuns(schedule.id, 20) });
+      if (method === "DELETE") return deleteScheduledJob(schedule.id) ? json({ deleted: true }) : error("Scheduled job not found.", 404);
+      if (method === "POST") {
+        const body = await readJson(request);
+        if (body.action !== "pause" && body.action !== "resume") return error("Choose pause or resume.", 400);
+        try {
+          const nextRunAt = body.action === "resume"
+            ? nextScheduledRun({ frequency: schedule.frequency, timeLocal: schedule.time_local, weekday: schedule.weekday, timeZone: schedule.timezone })
+            : null;
+          return json({ schedule: setScheduledJobEnabled(schedule.id, body.action === "resume", nextRunAt) });
+        } catch (cause) {
+          return error(cause instanceof Error ? cause.message : "Could not update this schedule.", 400);
+        }
+      }
+      if (method === "PATCH") {
+        const body = await readJson(request);
+        const name = typeof body.name === "string" ? body.name.trim() : schedule.name;
+        const prompt = typeof body.prompt === "string" ? body.prompt.trim() : schedule.prompt;
+        const frequency = body.frequency === "daily" || body.frequency === "weekly" ? body.frequency : schedule.frequency;
+        const timeLocal = typeof body.timeLocal === "string" ? body.timeLocal : schedule.time_local;
+        const timezone = typeof body.timezone === "string" ? body.timezone : schedule.timezone;
+        const weekday = body.weekday === null ? null : typeof body.weekday === "number" ? body.weekday : schedule.weekday;
+        const permissions = body.permissions === undefined ? schedule.permissions as unknown as Record<string, unknown> : body.permissions as Record<string, unknown>;
+        const permissionNames: (keyof AgentPermissions)[] = [
+          "allowWebAccess", "allowShellExecution", "allowFileModification", "allowFileCreation", "allowFolderCreation",
+        ];
+        if (!name || name.length > 80 || !prompt || prompt.length > 10_000) return error("Enter a schedule name and a prompt under 10,000 characters.", 400);
+        if (!isValidTimeZone(timezone) || permissionNames.some((key) => typeof permissions[key] !== "boolean")) return error("The time zone or permission settings are invalid.", 400);
+        try {
+          const nextRunAt = nextScheduledRun({ frequency, timeLocal, weekday, timeZone: timezone });
+          const updated = updateScheduledJob({
+            id: schedule.id, name, prompt, frequency, timeLocal,
+            weekday: frequency === "weekly" ? weekday : null,
+            timezone,
+            permissions: Object.fromEntries(permissionNames.map((key) => [key, permissions[key]])) as unknown as AgentPermissions,
+            nextRunAt,
+          });
+          return json({ schedule: updated, runs: listScheduledJobRuns(schedule.id, 20) });
+        } catch (cause) {
+          return error(cause instanceof Error ? cause.message : "Could not update this schedule.", 400);
+        }
+      }
     }
 
     if (segments.length === 4 && segments[0] === "api" && segments[1] === "agents" && segments[3] === "memories") {
@@ -371,7 +476,7 @@ async function handleApi(request: Request, port: number): Promise<Response> {
         const actions = task.status === "waiting_approval"
           ? listTaskActions(task.id).filter((action) => action.status === "pending")
           : [];
-        return json({ task, events: listTaskEvents(task.id), actions });
+        return json({ task, events: listTaskEvents(task.id), actions, delegatedTasks: listChildTasks(task.id) });
       }
 
       if (method === "POST" && segments[2] && segments.length === 3) {

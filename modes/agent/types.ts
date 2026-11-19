@@ -38,6 +38,7 @@ export interface AgentConfig {
 }
 
 export interface AgentPermissions {
+  allowWebAccess: boolean;
   allowShellExecution: boolean;
   allowFileModification: boolean;
   allowFileCreation: boolean;
@@ -45,6 +46,7 @@ export interface AgentPermissions {
 }
 
 export const defaultAgentPermissions = (): AgentPermissions => ({
+  allowWebAccess: false,
   allowShellExecution: true,
   allowFileModification: true,
   allowFileCreation: true,

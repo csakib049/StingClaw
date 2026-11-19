@@ -114,6 +114,12 @@ if (!taskColumns.some((column) => column.name === "worker_pid")) {
 if (!taskColumns.some((column) => column.name === "workspace_path")) {
   db.run("ALTER TABLE tasks ADD COLUMN workspace_path TEXT NOT NULL DEFAULT ''; ");
 }
+if (!taskColumns.some((column) => column.name === "permission_override_json")) {
+  db.run("ALTER TABLE tasks ADD COLUMN permission_override_json TEXT;");
+}
+if (!taskColumns.some((column) => column.name === "parent_task_id")) {
+  db.run("ALTER TABLE tasks ADD COLUMN parent_task_id TEXT REFERENCES tasks(id) ON DELETE SET NULL;");
+}
 
 db.run(`
   CREATE TABLE IF NOT EXISTS task_actions (
@@ -145,6 +151,44 @@ db.run(`
     message TEXT NOT NULL,
     created_at TEXT NOT NULL,
     read_at TEXT
+  );
+`);
+
+const notificationColumns = db.query("PRAGMA table_info(notifications)").all() as { name: string }[];
+if (!notificationColumns.some((column) => column.name === "telegram_sent_at")) {
+  db.run("ALTER TABLE notifications ADD COLUMN telegram_sent_at TEXT;");
+}
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS scheduled_jobs (
+    id TEXT PRIMARY KEY,
+    agent_id TEXT NOT NULL REFERENCES agents(id) ON DELETE CASCADE,
+    conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    prompt TEXT NOT NULL,
+    frequency TEXT NOT NULL CHECK (frequency IN ('daily', 'weekly')),
+    time_local TEXT NOT NULL,
+    weekday INTEGER,
+    timezone TEXT NOT NULL,
+    enabled INTEGER NOT NULL DEFAULT 1,
+    permissions_json TEXT NOT NULL DEFAULT '{}',
+    next_run_at TEXT NOT NULL,
+    last_run_at TEXT,
+    last_task_id TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+`);
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS scheduled_job_runs (
+    id TEXT PRIMARY KEY,
+    job_id TEXT NOT NULL REFERENCES scheduled_jobs(id) ON DELETE CASCADE,
+    task_id TEXT REFERENCES tasks(id) ON DELETE SET NULL,
+    scheduled_at TEXT NOT NULL,
+    status TEXT NOT NULL,
+    error TEXT,
+    created_at TEXT NOT NULL
   );
 `);
 

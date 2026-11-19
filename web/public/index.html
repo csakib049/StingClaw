@@ -89,6 +89,8 @@
           <p class="settings-note">Use a model ID from OpenRouter, such as <code>openrouter/free</code>.</p>
           <fieldset class="permission-fieldset">
             <legend>Agent permissions</legend>
+            <label class="permission-row"><input id="permission-web" type="checkbox" /><span>Search and read public web pages (read-only)</span></label>
+            <p class="settings-note">Web search requires a <code>FIRECRAWL_API_KEY</code> in the local environment. This permission starts off.</p>
             <label class="permission-row"><input id="permission-file-read" type="checkbox" checked disabled /><span>Read workspace files</span></label>
             <label class="permission-row"><input id="permission-file-create" type="checkbox" /><span>Create files</span></label>
             <label class="permission-row"><input id="permission-file-modify" type="checkbox" /><span>Modify or delete files</span></label>
@@ -116,6 +118,30 @@
           <label class="permission-row startup-toggle"><input id="startup-enabled" type="checkbox" /><span>Start StingClaw when I sign in</span></label>
           <p class="settings-note">Sign-in startup launches the local web service and Telegram bot, if configured. Stopping now cancels queued and running tasks; approval requests stay saved.</p>
           <button id="stop-service-button" type="button" class="quiet-button danger-button">Stop backend now</button>
+        </section>
+        <section class="key-manager schedule-manager">
+          <div class="key-section-heading"><strong>Scheduled jobs</strong><span>Runs only while the backend is active</span></div>
+          <p class="settings-note">If StingClaw is off at a scheduled time, that run is skipped and recorded. The next daily or weekly run remains scheduled.</p>
+          <form id="schedule-add-form" class="schedule-form">
+            <label>Job name<input id="schedule-new-name" maxlength="80" placeholder="Daily inbox review" required /></label>
+            <label>What should the agent do?<textarea id="schedule-new-prompt" rows="3" maxlength="10000" placeholder="Review my tasks and prepare a short summary." required></textarea></label>
+            <div class="schedule-grid">
+              <label>Repeat<select id="schedule-new-frequency"><option value="daily">Daily</option><option value="weekly">Weekly</option></select></label>
+              <label>Time<input id="schedule-new-time" type="time" value="09:00" required /></label>
+            </div>
+            <label id="schedule-new-weekday-wrap" class="hidden">Day of week<select id="schedule-new-weekday"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option></select></label>
+            <label>Time zone<input id="schedule-new-timezone" maxlength="100" required /></label>
+            <div class="schedule-permissions">
+              <span>Permissions for this job (limited by agent settings)</span>
+              <label><input id="schedule-new-web" type="checkbox" /> Search/read public pages</label>
+              <label><input id="schedule-new-create" type="checkbox" /> Create files</label>
+              <label><input id="schedule-new-modify" type="checkbox" /> Modify or delete files</label>
+              <label><input id="schedule-new-folder" type="checkbox" /> Create folders</label>
+              <label><input id="schedule-new-shell" type="checkbox" /> Run shell commands</label>
+            </div>
+            <button class="quiet-button" type="submit">Create scheduled job</button>
+          </form>
+          <div id="schedule-list" class="schedule-list"></div>
         </section>
         <section class="key-manager memory-manager">
           <div class="key-section-heading"><strong>Agent memory</strong><span>Saved facts are used when relevant</span></div>

@@ -2,6 +2,7 @@ const state = {
   agents: [],
   apiKeys: [],
   memories: [],
+  schedules: [],
   notifications: [],
   unreadNotifications: 0,
   environmentKeyAvailable: false,
@@ -127,6 +128,7 @@ function renderHeader() {
   $("#settings-description").value = state.activeAgent.description || "";
   $("#settings-instructions").value = state.activeAgent.instructions || "";
   $("#settings-model").value = state.activeAgent.model_id || "openrouter/free";
+  $("#permission-web").checked = Boolean(state.activeAgent.permissions?.allowWebAccess);
   $("#permission-shell").checked = Boolean(state.activeAgent.permissions?.allowShellExecution);
   $("#permission-file-create").checked = Boolean(state.activeAgent.permissions?.allowFileCreation);
   $("#permission-file-modify").checked = Boolean(state.activeAgent.permissions?.allowFileModification);
@@ -333,6 +335,278 @@ async function loadAgentMemories(agentId = state.activeAgent?.id) {
   const data = await api(`/api/agents/${encodeURIComponent(agentId)}/memories`);
   state.memories = data.memories;
   renderMemories();
+}
+
+function scheduleTime(value, timeZone) {
+  if (!value) return "Not scheduled";
+  return new Intl.DateTimeFormat(undefined, { timeZone, dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+function appendSchedulePermissions(container, permissions = {}) {
+  const settings = [
+    ["allowWebAccess", "Search/read public pages"],
+    ["allowFileCreation", "Create files"],
+    ["allowFileModification", "Modify or delete files"],
+    ["allowFolderCreation", "Create folders"],
+    ["allowShellExecution", "Run shell commands"],
+  ];
+  const group = document.createElement("div");
+  group.className = "schedule-permissions";
+  const title = document.createElement("span");
+  title.textContent = "Job permissions (limited by the agent’s permissions)";
+  group.append(title);
+  for (const [field, labelText] of settings) {
+    const label = document.createElement("label");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.dataset.permission = field;
+    checkbox.checked = Boolean(permissions[field]);
+    const text = document.createElement("span");
+    text.textContent = labelText;
+    label.append(checkbox, text);
+    group.append(label);
+  }
+  container.append(group);
+}
+
+function readSchedulePermissions(container) {
+  return Object.fromEntries([...container.querySelectorAll("input[data-permission]")]
+    .map((input) => [input.dataset.permission, input.checked]));
+}
+
+function renderSchedules() {
+  const container = $("#schedule-list");
+  if (!container) return;
+  container.replaceChildren();
+  if (!state.schedules.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-key-copy";
+    empty.textContent = "No scheduled jobs for this agent yet.";
+    container.append(empty);
+    return;
+  }
+
+  for (const schedule of state.schedules) {
+    const details = document.createElement("details");
+    details.className = "schedule-card";
+    const summary = document.createElement("summary");
+    const title = document.createElement("strong");
+    title.textContent = schedule.name;
+    const next = document.createElement("span");
+    next.textContent = schedule.enabled
+      ? `Next run: ${scheduleTime(schedule.next_run_at, schedule.timezone)}`
+      : "Paused";
+    summary.append(title, next);
+
+    const body = document.createElement("div");
+    body.className = "schedule-card-body";
+    const nameLabel = document.createElement("label");
+    nameLabel.textContent = "Job name";
+    const name = document.createElement("input");
+    name.maxLength = 80;
+    name.value = schedule.name;
+    nameLabel.append(name);
+    const promptLabel = document.createElement("label");
+    promptLabel.textContent = "Job instructions";
+    const prompt = document.createElement("textarea");
+    prompt.rows = 3;
+    prompt.maxLength = 10000;
+    prompt.value = schedule.prompt;
+    promptLabel.append(prompt);
+    const grid = document.createElement("div");
+    grid.className = "schedule-grid";
+    const frequencyLabel = document.createElement("label");
+    frequencyLabel.textContent = "Repeat";
+    const frequency = document.createElement("select");
+    for (const [value, labelText] of [["daily", "Daily"], ["weekly", "Weekly"]]) {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = labelText;
+      frequency.append(option);
+    }
+    frequency.value = schedule.frequency;
+    frequencyLabel.append(frequency);
+    const timeLabel = document.createElement("label");
+    timeLabel.textContent = "Local run time";
+    const time = document.createElement("input");
+    time.type = "time";
+    time.value = schedule.time_local;
+    timeLabel.append(time);
+    grid.append(frequencyLabel, timeLabel);
+    const weekdayLabel = document.createElement("label");
+    weekdayLabel.textContent = "Day of week";
+    const weekday = document.createElement("select");
+    for (const [value, labelText] of [["1", "Monday"], ["2", "Tuesday"], ["3", "Wednesday"], ["4", "Thursday"], ["5", "Friday"], ["6", "Saturday"], ["0", "Sunday"]]) {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = labelText;
+      weekday.append(option);
+    }
+    weekday.value = String(schedule.weekday ?? 1);
+    weekdayLabel.append(weekday);
+    const showWeekday = () => weekdayLabel.classList.toggle("hidden", frequency.value !== "weekly");
+    frequency.addEventListener("change", showWeekday);
+    showWeekday();
+    const timezoneLabel = document.createElement("label");
+    timezoneLabel.textContent = "Time zone";
+    const timezone = document.createElement("input");
+    timezone.maxLength = 100;
+    timezone.value = schedule.timezone;
+    timezoneLabel.append(timezone);
+    body.append(nameLabel, promptLabel, grid, weekdayLabel, timezoneLabel);
+    appendSchedulePermissions(body, schedule.permissions);
+
+    const actions = document.createElement("div");
+    actions.className = "schedule-actions";
+    const save = document.createElement("button");
+    save.type = "button";
+    save.className = "quiet-button";
+    save.textContent = "Save changes";
+    save.addEventListener("click", () => updateSchedule(schedule.id, {
+      name: name.value,
+      prompt: prompt.value,
+      frequency: frequency.value,
+      timeLocal: time.value,
+      weekday: frequency.value === "weekly" ? Number(weekday.value) : null,
+      timezone: timezone.value,
+      permissions: readSchedulePermissions(body),
+    }));
+    const pause = document.createElement("button");
+    pause.type = "button";
+    pause.className = "quiet-button";
+    pause.textContent = schedule.enabled ? "Pause" : "Resume";
+    pause.addEventListener("click", () => changeScheduleState(schedule.id, schedule.enabled ? "pause" : "resume"));
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "quiet-button danger-button";
+    remove.textContent = "Delete";
+    remove.addEventListener("click", () => removeSchedule(schedule.id));
+    actions.append(save, pause, remove);
+    body.append(actions);
+
+    if (schedule.runs?.length) {
+      const runList = document.createElement("div");
+      runList.className = "schedule-run-list";
+      const runHeading = document.createElement("strong");
+      runHeading.textContent = "Recent runs";
+      runList.append(runHeading);
+      for (const run of schedule.runs) {
+        const runItem = document.createElement("article");
+        runItem.className = "schedule-run";
+        const runStatus = document.createElement("strong");
+        runStatus.textContent = run.status.replaceAll("_", " ").toUpperCase();
+        const runTime = document.createElement("span");
+        runTime.textContent = scheduleTime(run.scheduled_at, schedule.timezone);
+        runItem.append(runStatus, runTime);
+        if (run.task_result) {
+          const result = document.createElement("span");
+          result.textContent = shortText(run.task_result, 220);
+          runItem.append(result);
+        } else if (run.error) {
+          const errorText = document.createElement("span");
+          errorText.textContent = shortText(run.error, 220);
+          runItem.append(errorText);
+        }
+        if (run.task_id) {
+          const open = document.createElement("button");
+          open.type = "button";
+          open.className = "text-button";
+          open.textContent = "Open task conversation";
+          open.addEventListener("click", () => openScheduleConversation(schedule.conversation_id));
+          runItem.append(open);
+        }
+        runList.append(runItem);
+      }
+      body.append(runList);
+    }
+
+    details.append(summary, body);
+    container.append(details);
+  }
+}
+
+async function loadSchedules(agentId = state.activeAgent?.id) {
+  if (!agentId) return;
+  const data = await api(`/api/agents/${encodeURIComponent(agentId)}/schedules`);
+  state.schedules = data.schedules;
+  renderSchedules();
+}
+
+async function createSchedule(event) {
+  event.preventDefault();
+  if (!state.activeAgent) return;
+  try {
+    await api(`/api/agents/${encodeURIComponent(state.activeAgent.id)}/schedules`, {
+      method: "POST",
+      body: JSON.stringify({
+        name: $("#schedule-new-name").value,
+        prompt: $("#schedule-new-prompt").value,
+        frequency: $("#schedule-new-frequency").value,
+        timeLocal: $("#schedule-new-time").value,
+        weekday: $("#schedule-new-frequency").value === "weekly" ? Number($("#schedule-new-weekday").value) : null,
+        timezone: $("#schedule-new-timezone").value,
+        permissions: {
+          allowWebAccess: $("#schedule-new-web").checked,
+          allowFileCreation: $("#schedule-new-create").checked,
+          allowFileModification: $("#schedule-new-modify").checked,
+          allowFolderCreation: $("#schedule-new-folder").checked,
+          allowShellExecution: $("#schedule-new-shell").checked,
+        },
+      }),
+    });
+    $("#schedule-new-name").value = "";
+    $("#schedule-new-prompt").value = "";
+    await loadSchedules();
+    const conversations = await api(`/api/agents/${encodeURIComponent(state.activeAgent.id)}/conversations`);
+    state.conversations = conversations.conversations;
+    renderConversations();
+    toast("Scheduled job created.");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+async function updateSchedule(scheduleId, changes) {
+  try {
+    await api(`/api/schedules/${encodeURIComponent(scheduleId)}`, { method: "PATCH", body: JSON.stringify(changes) });
+    await loadSchedules();
+    toast("Schedule updated.");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+async function changeScheduleState(scheduleId, action) {
+  try {
+    await api(`/api/schedules/${encodeURIComponent(scheduleId)}`, { method: "POST", body: JSON.stringify({ action }) });
+    await loadSchedules();
+    toast(action === "pause" ? "Schedule paused." : "Schedule resumed.");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+async function removeSchedule(scheduleId) {
+  try {
+    await api(`/api/schedules/${encodeURIComponent(scheduleId)}`, { method: "DELETE" });
+    await loadSchedules();
+    toast("Scheduled job deleted. Existing tasks and conversations remain saved.");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+async function openScheduleConversation(conversationId) {
+  try {
+    if (!state.conversations.some((conversation) => conversation.id === conversationId)) {
+      const data = await api(`/api/agents/${encodeURIComponent(state.activeAgent.id)}/conversations`);
+      state.conversations = data.conversations;
+      renderConversations();
+    }
+    await selectConversation(conversationId);
+  } catch (error) {
+    toast(error.message);
+  }
 }
 
 function renderMemories() {
@@ -583,9 +857,11 @@ async function loadAgents() {
 async function loadAgentWorkspace(agentId) {
   state.activeAgent = state.agents.find((agent) => agent.id === agentId) ?? null;
   if (!state.activeAgent) return;
+  state.schedules = [];
   renderAgents($("#agent-search").value);
   renderHeader();
   await loadAgentMemories(agentId);
+  await loadSchedules(agentId);
 
   const data = await api(`/api/agents/${encodeURIComponent(agentId)}/conversations`);
   state.conversations = data.conversations;
@@ -666,6 +942,9 @@ function beginPolling() {
       pollCount += 1;
       if (pollCount % 5 === 0 && !document.activeElement?.closest("#memory-list")) {
         await loadAgentMemories(state.activeAgent?.id);
+      }
+      if (pollCount % 5 === 0 && !document.activeElement?.closest("#schedule-list")) {
+        await loadSchedules(state.activeAgent?.id);
       }
     } catch {
       // Keep the last visible state and retry on the next polling interval.
@@ -767,6 +1046,12 @@ async function openTaskDetails(taskId) {
       `Status: ${statusLabel(data.task.status)}`,
       data.task.error ? `Error: ${data.task.error}` : "",
       "",
+      ...(data.delegatedTasks?.length ? [
+        "Delegated subtasks:",
+        ...data.delegatedTasks.map((child) => `• ${child.agent_name} — ${statusLabel(child.status)} (conversation ${child.conversation_id})${child.error ? `: ${child.error}` : ""}`),
+        "Select that agent in the sidebar to open its delegated conversation.",
+        "",
+      ] : []),
       "Progress:",
       ...(data.events ?? []).map((event) => `• ${formatTime(event.created_at)} ${event.message}`),
     ].filter(Boolean);
@@ -794,6 +1079,7 @@ async function saveAgentSettings(event) {
         modelId: $("#settings-model").value,
         apiKeyIds: state.activeAgent.api_key_ids ?? [],
         permissions: {
+          allowWebAccess: $("#permission-web").checked,
           allowShellExecution: $("#permission-shell").checked,
           allowFileModification: $("#permission-file-modify").checked,
           allowFileCreation: $("#permission-file-create").checked,
@@ -865,6 +1151,10 @@ $("#close-settings").addEventListener("click", () => setSettingsOpen(false));
 $("#settings-form").addEventListener("submit", saveAgentSettings);
 $("#key-add-form").addEventListener("submit", addApiKey);
 $("#memory-add-form").addEventListener("submit", addMemoryFromForm);
+$("#schedule-add-form").addEventListener("submit", createSchedule);
+$("#schedule-new-frequency").addEventListener("change", (event) => {
+  $("#schedule-new-weekday-wrap").classList.toggle("hidden", event.target.value !== "weekly");
+});
 $("#startup-enabled").addEventListener("change", (event) => setStartupEnabled(event.target.checked));
 $("#stop-service-button").addEventListener("click", stopBackend);
 $("#notifications-button").addEventListener("click", async () => {
@@ -874,6 +1164,8 @@ $("#notifications-button").addEventListener("click", async () => {
 });
 $("#close-notifications").addEventListener("click", () => $("#notification-dialog").close());
 $("#mark-all-notifications-read").addEventListener("click", markAllNotificationsRead);
+
+$("#schedule-new-timezone").value = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 $("#close-approval").addEventListener("click", () => $("#approval-dialog").close());
 $("#message-form").addEventListener("submit", (event) => {
   event.preventDefault();

@@ -8,6 +8,7 @@ import { runWakeup } from "./tui/wakeup";
 import { runStoredTask } from "./modes/agent/task-worker";
 import { startWebServer } from "./web/server";
 import { runBackendService } from "./modes/backend/service";
+import { startScheduledJobRunner } from "./modes/scheduler/runner";
 
 
 const program = new Command();
@@ -36,6 +37,7 @@ program
     .description("start the local StingClaw web interface")
     .action(() => {
         startWebServer();
+        startScheduledJobRunner();
     });
 
 program

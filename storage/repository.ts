@@ -1,6 +1,7 @@
 import { db } from "./database";
 import type { ActionLog } from "../modes/agent/types";
 import { defaultAgentPermissions, type AgentPermissions } from "../modes/agent/types";
+import type { ScheduleFrequency } from "../modes/scheduler/time";
 import { decryptSecret, encryptSecret } from "./secret-store";
 
 export interface Agent {
@@ -508,6 +509,61 @@ export interface Task {
     updated_at: string;
     worker_pid: number | null;
     workspace_path: string;
+    permission_override: AgentPermissions | null;
+    parent_task_id: string | null;
+}
+
+type TaskRow = Omit<Task, "permission_override"> & { permission_override_json: string | null };
+
+function mapTask(row: TaskRow): Task {
+  let permissionOverride: AgentPermissions | null = null;
+  if (row.permission_override_json) {
+    try { permissionOverride = JSON.parse(row.permission_override_json) as AgentPermissions; } catch { /* use agent permissions */ }
+  }
+  const { permission_override_json: _permissionOverrideJson, ...task } = row;
+  return { ...task, permission_override: permissionOverride };
+}
+
+export interface ScheduledJob {
+  id: string;
+  agent_id: string;
+  conversation_id: string;
+  name: string;
+  prompt: string;
+  frequency: ScheduleFrequency;
+  time_local: string;
+  weekday: number | null;
+  timezone: string;
+  enabled: boolean;
+  permissions: AgentPermissions;
+  next_run_at: string;
+  last_run_at: string | null;
+  last_task_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ScheduledJobRun {
+  id: string;
+  job_id: string;
+  task_id: string | null;
+  scheduled_at: string;
+  status: string;
+  error: string | null;
+  created_at: string;
+  task_goal: string | null;
+  task_result: string | null;
+}
+
+export interface ScheduledNotification {
+  id: string;
+  task_id: string;
+  type: string;
+  title: string;
+  message: string;
+  created_at: string;
+  task_result: string | null;
+  schedule_name: string;
 }
 
 export interface TaskEvent {
@@ -523,6 +579,8 @@ export function createTask(input: {
   conversationId: string;
   goal: string;
   workspacePath: string;
+  permissionOverride?: AgentPermissions;
+  parentTaskId?: string;
 }): Task {
   const conversation = db.query(`
     SELECT id
@@ -553,16 +611,18 @@ export function createTask(input: {
     updated_at: now,
     worker_pid: null,
     workspace_path: input.workspacePath,
+    permission_override: input.permissionOverride ?? null,
+    parent_task_id: input.parentTaskId ?? null,
   };
 
   db.query(`
     INSERT INTO tasks (
       id, agent_id, conversation_id, status, goal,
-      result, error, created_at, updated_at, worker_pid, workspace_path
+      result, error, created_at, updated_at, worker_pid, workspace_path, permission_override_json, parent_task_id
     )
     VALUES (
       $id, $agent_id, $conversation_id, $status, $goal,
-      $result, $error, $created_at, $updated_at, $worker_pid, $workspace_path
+      $result, $error, $created_at, $updated_at, $worker_pid, $workspace_path, $permission_override_json, $parent_task_id
     )
   `).run({
     $id: task.id,
@@ -576,6 +636,8 @@ export function createTask(input: {
     $updated_at: task.updated_at,
     $worker_pid: task.worker_pid,
     $workspace_path: task.workspace_path,
+    $permission_override_json: task.permission_override ? JSON.stringify(task.permission_override) : null,
+    $parent_task_id: task.parent_task_id,
   });
 
   return task;
@@ -585,23 +647,24 @@ export function getTask(taskId: string): Task | null {
   const task = db.query(`
     SELECT
       id, agent_id, conversation_id, status, goal,
-      result, error, created_at, updated_at, worker_pid, workspace_path
+      result, error, created_at, updated_at, worker_pid, workspace_path, permission_override_json, parent_task_id
     FROM tasks
     WHERE id = $id
-  `).get({ $id: taskId }) as Task | null;
+  `).get({ $id: taskId }) as TaskRow | null;
 
-  return task ?? null;
+  return task ? mapTask(task) : null;
 }
 
 export function listTasks(conversationId: string): Task[] {
-  return db.query(`
+  const rows = db.query(`
     SELECT
       id, agent_id, conversation_id, status, goal,
-      result, error, created_at, updated_at, worker_pid, workspace_path
+      result, error, created_at, updated_at, worker_pid, workspace_path, permission_override_json, parent_task_id
     FROM tasks
     WHERE conversation_id = $conversation_id
     ORDER BY created_at DESC
-  `).all({ $conversation_id: conversationId }) as Task[];
+  `).all({ $conversation_id: conversationId }) as TaskRow[];
+  return rows.map(mapTask);
 }
 
 export function updateTaskStatus(input: {
@@ -680,25 +743,278 @@ export function listTaskEvents(taskId: string): TaskEvent[] {
 }
 
 export function listRecentTasks(limit = 30): Task[] {
-  return db.query(`
+  const rows = db.query(`
     SELECT
       id, agent_id, conversation_id, status, goal,
-      result, error, created_at, updated_at, worker_pid, workspace_path
+      result, error, created_at, updated_at, worker_pid, workspace_path, permission_override_json, parent_task_id
     FROM tasks
     ORDER BY created_at DESC
     LIMIT $limit
-  `).all({ $limit: limit }) as Task[];
+  `).all({ $limit: limit }) as TaskRow[];
+  return rows.map(mapTask);
 }
 
 export function listActiveTasks(): Task[] {
-  return db.query(`
+  const rows = db.query(`
     SELECT
       id, agent_id, conversation_id, status, goal,
-      result, error, created_at, updated_at, worker_pid, workspace_path
+      result, error, created_at, updated_at, worker_pid, workspace_path, permission_override_json, parent_task_id
     FROM tasks
     WHERE status IN ('queued', 'running')
     ORDER BY created_at ASC
-  `).all() as Task[];
+  `).all() as TaskRow[];
+  return rows.map(mapTask);
+}
+
+export function countChildTasks(parentTaskId: string): number {
+  const row = db.query("SELECT COUNT(*) AS count FROM tasks WHERE parent_task_id = $parent_task_id")
+    .get({ $parent_task_id: parentTaskId }) as { count: number };
+  return row.count;
+}
+
+export function listChildTasks(parentTaskId: string): (Task & { agent_name: string })[] {
+  const rows = db.query(`
+    SELECT t.id, t.agent_id, t.conversation_id, t.status, t.goal, t.result, t.error,
+      t.created_at, t.updated_at, t.worker_pid, t.workspace_path,
+      t.permission_override_json, t.parent_task_id, a.name AS agent_name
+    FROM tasks t JOIN agents a ON a.id = t.agent_id
+    WHERE t.parent_task_id = $parent_task_id
+    ORDER BY t.created_at ASC
+  `).all({ $parent_task_id: parentTaskId }) as (TaskRow & { agent_name: string })[];
+  return rows.map((row) => ({ ...mapTask(row), agent_name: row.agent_name }));
+}
+
+type ScheduledJobRow = Omit<ScheduledJob, "enabled" | "permissions"> & {
+  enabled: number;
+  permissions_json: string;
+};
+
+function mapScheduledJob(row: ScheduledJobRow): ScheduledJob {
+  let permissions: Partial<AgentPermissions> = {};
+  try { permissions = JSON.parse(row.permissions_json) as Partial<AgentPermissions>; } catch { /* use safe defaults */ }
+  const { permissions_json: _permissionsJson, ...values } = row;
+  return { ...values, enabled: Boolean(row.enabled), permissions: { ...defaultAgentPermissions(), ...permissions } };
+}
+
+export function createScheduledJob(input: {
+  agentId: string;
+  conversationId: string;
+  name: string;
+  prompt: string;
+  frequency: ScheduleFrequency;
+  timeLocal: string;
+  weekday: number | null;
+  timezone: string;
+  permissions: AgentPermissions;
+  nextRunAt: string;
+}): ScheduledJob {
+  const conversation = db.query("SELECT id FROM conversations WHERE id = $id AND agent_id = $agent_id")
+    .get({ $id: input.conversationId, $agent_id: input.agentId });
+  if (!conversation) throw new Error("Conversation does not belong to this agent.");
+  const now = new Date().toISOString();
+  const job: ScheduledJob = {
+    id: crypto.randomUUID(), agent_id: input.agentId, conversation_id: input.conversationId,
+    name: input.name.trim(), prompt: input.prompt.trim(), frequency: input.frequency,
+    time_local: input.timeLocal, weekday: input.weekday, timezone: input.timezone,
+    enabled: true, permissions: input.permissions, next_run_at: input.nextRunAt,
+    last_run_at: null, last_task_id: null, created_at: now, updated_at: now,
+  };
+  db.query(`
+    INSERT INTO scheduled_jobs (
+      id, agent_id, conversation_id, name, prompt, frequency, time_local, weekday,
+      timezone, enabled, permissions_json, next_run_at, last_run_at, last_task_id, created_at, updated_at
+    ) VALUES (
+      $id, $agent_id, $conversation_id, $name, $prompt, $frequency, $time_local, $weekday,
+      $timezone, 1, $permissions_json, $next_run_at, NULL, NULL, $created_at, $updated_at
+    )
+  `).run({
+    $id: job.id, $agent_id: job.agent_id, $conversation_id: job.conversation_id,
+    $name: job.name, $prompt: job.prompt, $frequency: job.frequency, $time_local: job.time_local,
+    $weekday: job.weekday, $timezone: job.timezone, $permissions_json: JSON.stringify(job.permissions),
+    $next_run_at: job.next_run_at, $created_at: now, $updated_at: now,
+  });
+  return job;
+}
+
+export function getScheduledJob(jobId: string): ScheduledJob | null {
+  const row = db.query(`
+    SELECT id, agent_id, conversation_id, name, prompt, frequency, time_local, weekday,
+      timezone, enabled, permissions_json, next_run_at, last_run_at, last_task_id, created_at, updated_at
+    FROM scheduled_jobs WHERE id = $id
+  `).get({ $id: jobId }) as ScheduledJobRow | null;
+  return row ? mapScheduledJob(row) : null;
+}
+
+export function listScheduledJobs(agentId: string): ScheduledJob[] {
+  const rows = db.query(`
+    SELECT id, agent_id, conversation_id, name, prompt, frequency, time_local, weekday,
+      timezone, enabled, permissions_json, next_run_at, last_run_at, last_task_id, created_at, updated_at
+    FROM scheduled_jobs WHERE agent_id = $agent_id
+    ORDER BY enabled DESC, next_run_at ASC
+  `).all({ $agent_id: agentId }) as ScheduledJobRow[];
+  return rows.map(mapScheduledJob);
+}
+
+export function updateScheduledJob(input: {
+  id: string;
+  name: string;
+  prompt: string;
+  frequency: ScheduleFrequency;
+  timeLocal: string;
+  weekday: number | null;
+  timezone: string;
+  permissions: AgentPermissions;
+  nextRunAt: string;
+}): ScheduledJob {
+  const updated = db.query(`
+    UPDATE scheduled_jobs
+    SET name = $name, prompt = $prompt, frequency = $frequency,
+      time_local = $time_local, weekday = $weekday, timezone = $timezone,
+      permissions_json = $permissions_json, next_run_at = $next_run_at, updated_at = $updated_at
+    WHERE id = $id
+  `).run({
+    $id: input.id, $name: input.name.trim(), $prompt: input.prompt.trim(),
+    $frequency: input.frequency, $time_local: input.timeLocal, $weekday: input.weekday,
+    $timezone: input.timezone, $permissions_json: JSON.stringify(input.permissions),
+    $next_run_at: input.nextRunAt, $updated_at: new Date().toISOString(),
+  });
+  if (!updated.changes) throw new Error("Scheduled job not found.");
+  return getScheduledJob(input.id)!;
+}
+
+export function setScheduledJobEnabled(jobId: string, enabled: boolean, nextRunAt: string | null): ScheduledJob {
+  const updated = db.query(`
+    UPDATE scheduled_jobs
+    SET enabled = $enabled,
+        next_run_at = CASE WHEN $enabled = 1 THEN $next_run_at ELSE next_run_at END,
+        updated_at = $updated_at
+    WHERE id = $id
+  `).run({
+    $id: jobId, $enabled: enabled ? 1 : 0, $next_run_at: nextRunAt,
+    $updated_at: new Date().toISOString(),
+  });
+  if (!updated.changes) throw new Error("Scheduled job not found.");
+  return getScheduledJob(jobId)!;
+}
+
+export function deleteScheduledJob(jobId: string): boolean {
+  return db.query("DELETE FROM scheduled_jobs WHERE id = $id").run({ $id: jobId }).changes > 0;
+}
+
+export function listDueScheduledJobs(now: string): ScheduledJob[] {
+  const rows = db.query(`
+    SELECT id, agent_id, conversation_id, name, prompt, frequency, time_local, weekday,
+      timezone, enabled, permissions_json, next_run_at, last_run_at, last_task_id, created_at, updated_at
+    FROM scheduled_jobs WHERE enabled = 1 AND next_run_at <= $now
+    ORDER BY next_run_at ASC
+  `).all({ $now: now }) as ScheduledJobRow[];
+  return rows.map(mapScheduledJob);
+}
+
+export function skipMissedScheduledRun(jobId: string, now: string, nextRunAt: string): boolean {
+  const operation = db.transaction(() => {
+    const job = getScheduledJob(jobId);
+    if (!job || !job.enabled || job.next_run_at > now) return false;
+    const update = db.query(`
+      UPDATE scheduled_jobs
+      SET next_run_at = $next_run_at, last_run_at = $now, updated_at = $now
+      WHERE id = $id AND enabled = 1 AND next_run_at = $previous_run
+    `).run({ $id: jobId, $next_run_at: nextRunAt, $now: now, $previous_run: job.next_run_at });
+    if (!update.changes) return false;
+    db.query(`
+      INSERT INTO scheduled_job_runs (id, job_id, task_id, scheduled_at, status, error, created_at)
+      VALUES ($id, $job_id, NULL, $scheduled_at, 'missed', NULL, $created_at)
+    `).run({ $id: crypto.randomUUID(), $job_id: jobId, $scheduled_at: job.next_run_at, $created_at: now });
+    return true;
+  });
+  return operation();
+}
+
+export function claimScheduledJobRun(jobId: string, now: string, nextRunAt: string): { job: ScheduledJob; task: Task } | null {
+  const operation = db.transaction(() => {
+    const job = getScheduledJob(jobId);
+    if (!job || !job.enabled || job.next_run_at > now) return null;
+    const update = db.query(`
+      UPDATE scheduled_jobs
+      SET next_run_at = $next_run_at, last_run_at = $now, updated_at = $now
+      WHERE id = $id AND enabled = 1 AND next_run_at = $previous_run
+    `).run({ $id: jobId, $next_run_at: nextRunAt, $now: now, $previous_run: job.next_run_at });
+    if (!update.changes) return null;
+
+    const activeTask = db.query(`
+      SELECT id FROM tasks
+      WHERE conversation_id = $conversation_id
+        AND status IN ('queued', 'running', 'waiting_approval')
+      LIMIT 1
+    `).get({ $conversation_id: job.conversation_id });
+    if (activeTask) {
+      db.query(`
+        INSERT INTO scheduled_job_runs (id, job_id, task_id, scheduled_at, status, error, created_at)
+        VALUES ($id, $job_id, NULL, $scheduled_at, 'skipped_busy', 'The previous run is still active.', $created_at)
+      `).run({ $id: crypto.randomUUID(), $job_id: job.id, $scheduled_at: job.next_run_at, $created_at: now });
+      return null;
+    }
+
+    const goal = `Scheduled job: ${job.name}\n\n${job.prompt}`;
+    createMessage({ conversationId: job.conversation_id, sender: "user", source: "cli", content: goal });
+    const task = createTask({
+      agentId: job.agent_id,
+      conversationId: job.conversation_id,
+      goal,
+      workspacePath: process.cwd(),
+      permissionOverride: job.permissions,
+    });
+    db.query("UPDATE scheduled_jobs SET last_task_id = $task_id WHERE id = $id")
+      .run({ $task_id: task.id, $id: job.id });
+    addTaskEvent({ taskId: task.id, eventType: "queued", message: `Started by schedule “${job.name}”.` });
+    db.query(`
+      INSERT INTO scheduled_job_runs (id, job_id, task_id, scheduled_at, status, error, created_at)
+      VALUES ($id, $job_id, $task_id, $scheduled_at, 'queued', NULL, $created_at)
+    `).run({
+      $id: crypto.randomUUID(), $job_id: job.id, $task_id: task.id,
+      $scheduled_at: job.next_run_at, $created_at: now,
+    });
+    return { job, task };
+  });
+  return operation();
+}
+
+export function markScheduledRunStartFailed(taskId: string, message: string): void {
+  db.query("UPDATE scheduled_job_runs SET status = 'failed_to_start', error = $error WHERE task_id = $task_id")
+    .run({ $task_id: taskId, $error: message });
+}
+
+export function listScheduledJobRuns(jobId: string, limit = 20): ScheduledJobRun[] {
+  return db.query(`
+    SELECT r.id, r.job_id, r.task_id, r.scheduled_at,
+      CASE WHEN t.id IS NULL THEN r.status ELSE t.status END AS status,
+      COALESCE(t.error, r.error) AS error, r.created_at,
+      t.goal AS task_goal, t.result AS task_result
+    FROM scheduled_job_runs r
+    LEFT JOIN tasks t ON t.id = r.task_id
+    WHERE r.job_id = $job_id
+    ORDER BY r.scheduled_at DESC
+    LIMIT $limit
+  `).all({ $job_id: jobId, $limit: limit }) as ScheduledJobRun[];
+}
+
+export function listPendingScheduledNotifications(limit = 30): ScheduledNotification[] {
+  return db.query(`
+    SELECT n.id, n.task_id, n.type, n.title, n.message, n.created_at,
+      t.result AS task_result, j.name AS schedule_name
+    FROM notifications n
+    JOIN scheduled_job_runs r ON r.task_id = n.task_id
+    JOIN scheduled_jobs j ON j.id = r.job_id
+    JOIN tasks t ON t.id = n.task_id
+    WHERE n.telegram_sent_at IS NULL AND n.read_at IS NULL
+    ORDER BY n.created_at ASC
+    LIMIT $limit
+  `).all({ $limit: limit }) as ScheduledNotification[];
+}
+
+export function markScheduledNotificationTelegramSent(id: string): void {
+  db.query("UPDATE notifications SET telegram_sent_at = $sent_at WHERE id = $id AND telegram_sent_at IS NULL")
+    .run({ $id: id, $sent_at: new Date().toISOString() });
 }
 
 export function claimQueuedTask(taskId: string, workerPid: number): boolean {
