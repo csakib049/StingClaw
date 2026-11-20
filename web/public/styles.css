@@ -212,6 +212,23 @@ kbd { padding: 2px 5px; border: 1px solid #363941; border-radius: 4px; backgroun
 .settings-avatar-wrap { display: grid; padding: 22px 0 20px; place-items: center; }
 .avatar-settings { width: 54px; height: 54px; border-radius: 18px; font-size: 18px; }
 .settings-form { display: flex; flex-direction: column; gap: 14px; padding: 0 14px 20px; }
+.settings-group { min-width: 0; margin: 0 14px; border-bottom: 1px solid #292c32; }
+.settings-form > .settings-group { margin: 0; }
+.settings-group > summary { display: flex; min-height: 42px; align-items: center; justify-content: space-between; gap: 10px; color: #dfe3e8; font-size: 11px; font-weight: 650; list-style: none; cursor: pointer; }
+.settings-group > summary::-webkit-details-marker { display: none; }
+.settings-group > summary::after { width: 7px; height: 7px; flex: 0 0 7px; border-right: 1px solid #89919c; border-bottom: 1px solid #89919c; content: ""; transform: rotate(45deg) translateY(-2px); transition: transform .16s ease; }
+.settings-group[open] > summary::after { transform: rotate(225deg) translate(-1px, -1px); }
+.settings-group > summary:focus-visible { outline: 2px solid #54c291; outline-offset: 2px; }
+.settings-group > summary span { overflow: hidden; color: #89919c; font-size: 9px; font-weight: 450; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+.settings-group-content { display: flex; flex-direction: column; gap: 12px; padding: 0 0 15px; }
+.settings-category-title { margin: 14px 14px 0; padding: 0 0 8px; border-bottom: 1px solid #353941; color: #f0f2f5; font-size: 12px; font-weight: 700; }
+.agent-data-title { margin-top: 20px; }
+.app-settings-group { margin-top: 0; }
+.app-settings-group .key-manager { padding: 4px 0 15px; border-top: 0; }
+.app-settings-group .key-manager > .key-section-heading { display: none; }
+.settings-group-content .key-assignment { gap: 8px; padding: 2px 0 0; }
+.settings-group-content .permission-fieldset { gap: 9px; }
+.settings-form > .save-button { margin-top: 2px; }
 .settings-form label, .modal-card label { display: flex; flex-direction: column; gap: 6px; color: #aeb3bb; font-size: 10px; font-weight: 600; }
 .settings-form input, .settings-form textarea, .modal-card input, .modal-card textarea { width: 100%; padding: 9px 10px; border: 1px solid #30333a; border-radius: 8px; background: #17191d; color: #edf0f2; font-size: 11px; font-weight: 400; line-height: 1.5; resize: vertical; }
 .settings-form input:focus, .settings-form textarea:focus, .modal-card input:focus, .modal-card textarea:focus { border-color: #3b735c; outline: none; }

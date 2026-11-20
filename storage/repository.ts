@@ -1127,7 +1127,7 @@ export function listPendingScheduledNotifications(limit = 30): ScheduledNotifica
     JOIN scheduled_job_runs r ON r.task_id = n.task_id
     JOIN scheduled_jobs j ON j.id = r.job_id
     JOIN tasks t ON t.id = n.task_id
-    WHERE n.telegram_sent_at IS NULL AND n.read_at IS NULL
+    WHERE n.telegram_sent_at IS NULL
     ORDER BY n.created_at ASC
     LIMIT $limit
   `).all({ $limit: limit }) as ScheduledNotification[];

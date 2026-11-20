@@ -82,31 +82,43 @@
         </div>
         <div class="settings-avatar-wrap"><div id="settings-avatar" class="avatar avatar-settings">S</div></div>
         <form id="settings-form" class="settings-form">
-          <label>Name<input id="settings-name" maxlength="80" required /></label>
-          <label>Description<textarea id="settings-description" rows="3" maxlength="1000"></textarea></label>
-          <label>Instructions<textarea id="settings-instructions" rows="7" maxlength="8000" placeholder="How should this agent work?"></textarea></label>
-          <label>OpenRouter model ID<input id="settings-model" maxlength="160" placeholder="openrouter/free" required /></label>
-          <p class="settings-note">Use a model ID from OpenRouter, such as <code>openrouter/free</code>.</p>
-          <fieldset class="permission-fieldset">
-            <legend>Agent permissions</legend>
-            <label class="permission-row"><input id="permission-web" type="checkbox" /><span>Search and read public web pages (read-only)</span></label>
-            <p class="settings-note">Add a Firecrawl key in Settings. Web access is off by default and only reads public pages.</p>
-            <label class="permission-row"><input id="permission-file-read" type="checkbox" checked disabled /><span>Read workspace files</span></label>
-            <label class="permission-row"><input id="permission-file-create" type="checkbox" /><span>Create files</span></label>
-            <label class="permission-row"><input id="permission-file-modify" type="checkbox" /><span>Modify or delete files</span></label>
-            <label class="permission-row"><input id="permission-folder-create" type="checkbox" /><span>Create folders</span></label>
-            <label class="permission-row"><input id="permission-shell" type="checkbox" /><span>Run shell commands</span></label>
-          </fieldset>
-          <div class="key-assignment">
-            <div class="key-section-heading"><strong>Keys this agent may use</strong><span>Fallback follows this order for 401, 402, 403, or 429 responses</span></div>
-            <div id="agent-key-selection" class="key-list"></div>
-          </div>
+          <details class="settings-group" open>
+            <summary>Agent profile</summary>
+            <div class="settings-group-content">
+              <label>Name<input id="settings-name" maxlength="80" required /></label>
+              <label>Description<textarea id="settings-description" rows="3" maxlength="1000"></textarea></label>
+              <label>Instructions<textarea id="settings-instructions" rows="7" maxlength="8000" placeholder="How should this agent work?"></textarea></label>
+            </div>
+          </details>
+          <details class="settings-group" open>
+            <summary>Model and permissions</summary>
+            <div class="settings-group-content">
+              <label>OpenRouter model ID<input id="settings-model" maxlength="160" placeholder="openrouter/free" required /></label>
+              <p class="settings-note">Use a model ID from OpenRouter, such as <code>openrouter/free</code>.</p>
+              <fieldset class="permission-fieldset">
+                <legend>Agent permissions</legend>
+                <label class="permission-row"><input id="permission-web" type="checkbox" /><span>Search and read public web pages (read-only)</span></label>
+                <p class="settings-note">Add a Firecrawl key in App settings. Web access is off by default and only reads public pages.</p>
+                <label class="permission-row"><input id="permission-file-read" type="checkbox" checked disabled /><span>Read workspace files</span></label>
+                <label class="permission-row"><input id="permission-file-create" type="checkbox" /><span>Create files</span></label>
+                <label class="permission-row"><input id="permission-file-modify" type="checkbox" /><span>Modify or delete files</span></label>
+                <label class="permission-row"><input id="permission-folder-create" type="checkbox" /><span>Create folders</span></label>
+                <label class="permission-row"><input id="permission-shell" type="checkbox" /><span>Run shell commands</span></label>
+              </fieldset>
+              <div class="key-assignment">
+                <div class="key-section-heading"><strong>API keys this agent can use</strong><span>Fallback order for 401, 402, 403, or 429 responses</span></div>
+                <div id="agent-key-selection" class="key-list"></div>
+              </div>
+            </div>
+          </details>
           <button class="save-button" type="submit">Save settings</button>
           <button id="delete-agent-button" class="quiet-button danger-button" type="button">Delete agent</button>
           <p class="settings-note">Deleting an agent also removes its conversations, memories, and scheduled jobs. Agents with active tasks cannot be deleted.</p>
         </form>
-        <section class="key-manager">
-          <div class="key-section-heading"><strong>OpenRouter API keys</strong><span id="environment-key-status"></span></div>
+        <h3 class="settings-category-title">App settings</h3>
+        <details class="settings-group app-settings-group">
+          <summary>OpenRouter API keys <span id="environment-key-status"></span></summary>
+          <section class="key-manager">
           <p class="settings-note">Saved keys are encrypted for this Windows account. The full key is shown only while adding it.</p>
           <form id="key-add-form" class="key-add-form">
             <label>Key label<input id="key-label" maxlength="60" placeholder="Personal key" required /></label>
@@ -114,18 +126,23 @@
             <button class="quiet-button" type="submit">Add key</button>
           </form>
           <div id="key-list" class="key-list"></div>
-        </section>
-        <section class="key-manager">
-          <div class="key-section-heading"><strong>Firecrawl web search key</strong><span id="firecrawl-key-status">Not configured</span></div>
+          </section>
+        </details>
+        <details class="settings-group app-settings-group">
+          <summary>Web search <span id="firecrawl-key-status">Not configured</span></summary>
+          <section class="key-manager">
           <p class="settings-note">Saved encrypted for this Windows account. The full key is shown only while entering it. A key in the local environment remains supported as a fallback.</p>
           <form id="firecrawl-key-form" class="key-add-form">
             <label>Firecrawl API key<input id="firecrawl-key-input" type="password" autocomplete="new-password" placeholder="Paste Firecrawl key" /></label>
             <button class="quiet-button" type="submit">Save web key</button>
             <button id="firecrawl-key-remove" class="quiet-button danger-button" type="button">Remove saved key</button>
           </form>
-        </section>
-        <section class="key-manager telegram-manager">
-          <div class="key-section-heading"><strong>Connect Telegram</strong><span id="telegram-status">Not connected</span></div>
+          </section>
+        </details>
+        <details class="settings-group app-settings-group telegram-manager">
+          <summary>Telegram <span id="telegram-status">Not connected</span></summary>
+          <section class="key-manager">
+          <div class="key-section-heading"><strong>Connect Telegram</strong></div>
           <p class="settings-note">Use one Telegram bot for all your agents. Create a bot with <a href="https://t.me/BotFather" target="_blank" rel="noreferrer">@BotFather</a>, paste its token here, then open the one-time pairing link. You do not need to find or enter your Telegram ID.</p>
           <form id="telegram-connect-form" class="key-add-form">
             <label>Telegram bot token<input id="telegram-bot-token" type="password" autocomplete="new-password" placeholder="Paste token from BotFather" required /></label>
@@ -134,14 +151,20 @@
           <a id="telegram-pair-link" class="quiet-button hidden" target="_blank" rel="noreferrer">Open pairing link in Telegram</a>
           <button id="telegram-pair-again" class="quiet-button hidden" type="button">Generate a new pairing link</button>
           <button id="telegram-disconnect" class="quiet-button danger-button hidden" type="button">Disconnect Telegram</button>
-        </section>
-        <section class="key-manager service-manager">
-          <div class="key-section-heading"><strong>Background service</strong><span id="service-status">Checking service…</span></div>
+          </section>
+        </details>
+        <details class="settings-group app-settings-group service-manager">
+          <summary>Background service <span id="service-status">Checking service…</span></summary>
+          <section class="key-manager">
           <label class="permission-row startup-toggle"><input id="startup-enabled" type="checkbox" /><span>Start StingClaw when I sign in</span></label>
           <p class="settings-note">Sign-in startup launches the local web service and Telegram bot, if configured. Stopping now cancels queued and running tasks; approval requests stay saved.</p>
           <button id="stop-service-button" type="button" class="quiet-button danger-button">Stop backend now</button>
-        </section>
-        <section class="key-manager schedule-manager">
+          </section>
+        </details>
+        <h3 class="settings-category-title agent-data-title">Agent data and automation</h3>
+        <details class="settings-group app-settings-group">
+          <summary>Scheduled jobs</summary>
+          <section class="key-manager schedule-manager">
           <div class="key-section-heading"><strong>Scheduled jobs</strong><span>Runs only while the backend is active</span></div>
           <p class="settings-note">If StingClaw is off at a scheduled time, that run is skipped and recorded. The next daily or weekly run remains scheduled.</p>
           <form id="schedule-add-form" class="schedule-form">
@@ -164,8 +187,11 @@
             <button class="quiet-button" type="submit">Create scheduled job</button>
           </form>
           <div id="schedule-list" class="schedule-list"></div>
-        </section>
-        <section class="key-manager memory-manager">
+          </section>
+        </details>
+        <details class="settings-group app-settings-group">
+          <summary>Agent memory</summary>
+          <section class="key-manager memory-manager">
           <div class="key-section-heading"><strong>Agent memory</strong><span>Saved facts are used when relevant</span></div>
           <p class="settings-note">Only save information you want this agent to remember. Do not save passwords, API keys, or sensitive personal data.</p>
           <form id="memory-add-form" class="memory-add-form">
@@ -174,7 +200,8 @@
             <button class="quiet-button" type="submit">Save memory</button>
           </form>
           <div id="memory-list" class="memory-list"></div>
-        </section>
+          </section>
+        </details>
         <div class="conversation-section">
           <div class="sidebar-section-title"><span>Recent chats</span></div>
           <nav id="conversation-list" class="conversation-list" aria-label="Conversations"></nav>

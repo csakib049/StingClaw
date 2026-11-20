@@ -178,7 +178,7 @@ export function startTelegramTaskSync(bot: Telegraf, ownerId: number): () => voi
           }
           const cursor = eventCursors.get(task.id) ?? 0;
           for (const event of events.slice(cursor)) {
-            if (event.event_type === "started" || event.event_type === "tool_used" || event.event_type === "api_key_fallback" || event.event_type.startsWith("delegated_task_")) {
+            if (event.event_type === "started" || event.event_type === "api_key_fallback" || event.event_type.startsWith("delegated_task_")) {
               await bot.telegram.sendMessage(ownerId, `ℹ️ [${getAgent(conversation.agent_id)?.name ?? "Agent"}] ${event.message}`);
             }
             if (event.event_type === "approval_requested" && task.status === "waiting_approval") {
