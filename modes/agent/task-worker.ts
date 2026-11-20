@@ -9,6 +9,7 @@ import {
   createMessage,
   createTask,
   createTaskNotification,
+  getFirecrawlApiKey,
   getAgent,
   listAgents,
   listMessages,
@@ -193,7 +194,7 @@ export async function runStoredTask(taskId: string): Promise<void> {
       ].join("\n"),
       tools: {
         ...createAgentTools(executor, delegate, availableAgents),
-        ...(agentRecord.permissions.allowWebAccess && (task.permission_override?.allowWebAccess ?? true) && process.env.FIRECRAWL_API_KEY
+        ...(agentRecord.permissions.allowWebAccess && (task.permission_override?.allowWebAccess ?? true) && getFirecrawlApiKey()
           ? createWebTools(tracker, { search: true, scrape: true, fetch: false })
           : {}),
       },

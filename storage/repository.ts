@@ -1,4 +1,5 @@
 import { db } from "./database";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import type { ActionLog } from "../modes/agent/types";
 import { defaultAgentPermissions, type AgentPermissions } from "../modes/agent/types";
 import type { ScheduleFrequency } from "../modes/scheduler/time";
@@ -299,6 +300,10 @@ export function listAgents(): Agent[] {
   return rows.map(mapAgent);
 }
 
+export function deleteAgent(agentId: string): boolean {
+  return db.query("DELETE FROM agents WHERE id = $id").run({ $id: agentId }).changes > 0;
+}
+
 export function listApiKeys(): ApiKeyInfo[] {
   return db.query(`
     SELECT id, provider, label, last_four, created_at
@@ -364,6 +369,122 @@ export function deleteApiKey(id: string): boolean {
     return db.query("DELETE FROM api_keys WHERE id = $id").run({ $id: id }).changes > 0;
   });
   return remove();
+}
+
+export function getProviderSecret(service: string): string | null {
+  const row = db.query("SELECT encrypted_value FROM provider_secrets WHERE service = $service")
+    .get({ $service: service }) as { encrypted_value: string } | null;
+  return row ? decryptSecret(row.encrypted_value) : null;
+}
+
+export function getProviderSecretInfo(service: string): { configured: boolean; last_four: string | null; updated_at: string | null } {
+  const row = db.query("SELECT last_four, updated_at FROM provider_secrets WHERE service = $service")
+    .get({ $service: service }) as { last_four: string; updated_at: string } | null;
+  return { configured: Boolean(row), last_four: row?.last_four ?? null, updated_at: row?.updated_at ?? null };
+}
+
+export function setProviderSecret(service: string, secret: string): ReturnType<typeof getProviderSecretInfo> {
+  const now = new Date().toISOString();
+  db.query(`
+    INSERT INTO provider_secrets (service, encrypted_value, last_four, updated_at)
+    VALUES ($service, $encrypted_value, $last_four, $updated_at)
+    ON CONFLICT(service) DO UPDATE SET
+      encrypted_value = excluded.encrypted_value,
+      last_four = excluded.last_four,
+      updated_at = excluded.updated_at
+  `).run({
+    $service: service,
+    $encrypted_value: encryptSecret(secret),
+    $last_four: secret.slice(-4),
+    $updated_at: now,
+  });
+  return getProviderSecretInfo(service);
+}
+
+export function deleteProviderSecret(service: string): boolean {
+  return db.query("DELETE FROM provider_secrets WHERE service = $service").run({ $service: service }).changes > 0;
+}
+
+export function getFirecrawlApiKey(): string | null {
+  return getProviderSecret("firecrawl") ?? process.env.FIRECRAWL_API_KEY?.trim() ?? null;
+}
+
+export function getTelegramBotToken(): string | null {
+  if (getAppSetting("telegram_disconnected") === "1") return null;
+  return getProviderSecret("telegram_bot_token") ?? process.env.TELEGRAM_BOT_TOKEN?.trim() ?? null;
+}
+
+export function getTelegramOwnerId(): string | null {
+  if (getAppSetting("telegram_disconnected") === "1") return null;
+  return getAppSetting("telegram_owner_id") ?? process.env.TELEGRAM_OWNER_ID?.trim() ?? null;
+}
+
+function getAppSetting(key: string): string | null {
+  const row = db.query("SELECT setting_value FROM app_settings WHERE setting_key = $key")
+    .get({ $key: key }) as { setting_value: string } | null;
+  return row?.setting_value ?? null;
+}
+
+function setAppSetting(key: string, value: string): void {
+  db.query(`
+    INSERT INTO app_settings (setting_key, setting_value, updated_at)
+    VALUES ($key, $value, $updated_at)
+    ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value, updated_at = excluded.updated_at
+  `).run({ $key: key, $value: value, $updated_at: new Date().toISOString() });
+}
+
+function deleteAppSetting(key: string): void {
+  db.query("DELETE FROM app_settings WHERE setting_key = $key").run({ $key: key });
+}
+
+export function beginTelegramPairing(): { code: string; expiresAt: string } {
+  const code = randomBytes(18).toString("base64url");
+  const expiresAt = new Date(Date.now() + 10 * 60_000).toISOString();
+  setAppSetting("telegram_pair_hash", createHash("sha256").update(code).digest("hex"));
+  setAppSetting("telegram_pair_expires_at", expiresAt);
+  setAppSetting("telegram_owner_id", "");
+  deleteAppSetting("telegram_disconnected");
+  return { code, expiresAt };
+}
+
+export function claimTelegramOwner(userId: number, code: string): boolean {
+  const claim = db.transaction(() => {
+    if (getTelegramOwnerId()) return false;
+    const storedHash = getAppSetting("telegram_pair_hash");
+    const expiresAt = getAppSetting("telegram_pair_expires_at");
+    if (!storedHash || !expiresAt || Date.parse(expiresAt) <= Date.now()) return false;
+    const candidate = Buffer.from(createHash("sha256").update(code).digest("hex"), "hex");
+    const expected = Buffer.from(storedHash, "hex");
+    if (candidate.length !== expected.length || !timingSafeEqual(candidate, expected)) return false;
+    setAppSetting("telegram_owner_id", String(userId));
+    deleteAppSetting("telegram_pair_hash");
+    deleteAppSetting("telegram_pair_expires_at");
+    deleteAppSetting("telegram_disconnected");
+    return true;
+  });
+  return claim();
+}
+
+export function getTelegramPairingStatus(): { pending: boolean; expiresAt: string | null } {
+  const expiresAt = getAppSetting("telegram_pair_expires_at");
+  return { pending: Boolean(expiresAt && Date.parse(expiresAt) > Date.now() && !getTelegramOwnerId()), expiresAt };
+}
+
+export function getTelegramActiveAgentId(): string | null {
+  return getAppSetting("telegram_active_agent_id");
+}
+
+export function setTelegramActiveAgentId(agentId: string): void {
+  if (!getAgent(agentId)) throw new Error("Agent not found.");
+  setAppSetting("telegram_active_agent_id", agentId);
+}
+
+export function disconnectTelegramSettings(): void {
+  deleteProviderSecret("telegram_bot_token");
+  deleteAppSetting("telegram_owner_id");
+  deleteAppSetting("telegram_pair_hash");
+  deleteAppSetting("telegram_pair_expires_at");
+  setAppSetting("telegram_disconnected", "1");
 }
 
 export function createConversation(

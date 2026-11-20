@@ -1,1 +1,3 @@
-export const isOwner = (id: number) => String(id) === process.env.TELEGRAM_OWNER_ID?.trim();
+import { getTelegramOwnerId } from "../../storage/repository";
+
+export const isOwner = (id: number) => String(id) === getTelegramOwnerId();

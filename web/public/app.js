@@ -6,6 +6,9 @@ const state = {
   notifications: [],
   unreadNotifications: 0,
   environmentKeyAvailable: false,
+  firecrawlKey: { configured: false },
+  telegram: { configured: false, paired: false, pending: false },
+  telegramPairTimer: null,
   startupSupported: false,
   activeAgent: null,
   conversations: [],
@@ -133,7 +136,59 @@ function renderHeader() {
   $("#permission-file-create").checked = Boolean(state.activeAgent.permissions?.allowFileCreation);
   $("#permission-file-modify").checked = Boolean(state.activeAgent.permissions?.allowFileModification);
   $("#permission-folder-create").checked = Boolean(state.activeAgent.permissions?.allowFolderCreation);
+  $("#delete-agent-button").disabled = false;
+  $("#settings-button").disabled = false;
+  $("#new-chat-button").disabled = false;
+  $("#message-input").disabled = false;
+  $("#send-button").disabled = false;
+  $("#welcome-panel h2").textContent = "What can I help you with?";
+  $("#welcome-panel p").textContent = "Choose an agent and send a message. Tasks keep running if you close this page.";
   renderAgentKeySelection();
+}
+
+function showNoAgents() {
+  if (state.polling) clearInterval(state.polling);
+  state.polling = null;
+  state.activeAgent = null;
+  state.activeConversation = null;
+  state.conversations = [];
+  state.messages = [];
+  state.tasks = [];
+  state.schedules = [];
+  state.memories = [];
+  $("#active-agent-name").textContent = "No agents yet";
+  $("#active-agent-description").textContent = "Create an agent to start chatting.";
+  $("#header-avatar").textContent = "+";
+  $("#settings-avatar").textContent = "+";
+  $("#settings-button").disabled = true;
+  $("#new-chat-button").disabled = true;
+  $("#message-input").disabled = true;
+  $("#send-button").disabled = true;
+  $("#delete-agent-button").disabled = true;
+  $("#welcome-panel h2").textContent = "Create your first agent";
+  $("#welcome-panel p").textContent = "Select the + button in the sidebar to create an agent and start chatting.";
+  setSettingsOpen(false);
+  renderAgents($("#agent-search").value);
+  renderConversations();
+  renderMessages();
+  renderTasks();
+}
+
+async function deleteActiveAgent() {
+  const agent = state.activeAgent;
+  if (!agent) return;
+  const confirmed = window.confirm(`Delete “${agent.name}”? Its conversations, memories, and scheduled jobs will also be permanently deleted.`);
+  if (!confirmed) return;
+  try {
+    await api(`/api/agents/${encodeURIComponent(agent.id)}`, { method: "DELETE" });
+    state.agents = state.agents.filter((item) => item.id !== agent.id);
+    renderAgents($("#agent-search").value);
+    if (state.agents.length) await selectAgent(state.agents[0].id);
+    else showNoAgents();
+    toast(`Agent “${agent.name}” deleted.`);
+  } catch (error) {
+    toast(error.message);
+  }
 }
 
 function renderAgentKeySelection() {
@@ -207,11 +262,124 @@ function moveAgentKey(keyId, direction) {
 
 async function loadApiKeys() {
   const data = await api("/api/keys");
+  const firecrawl = await api("/api/provider-keys/firecrawl");
+  state.firecrawlKey = firecrawl;
   state.apiKeys = data.keys;
   state.environmentKeyAvailable = data.environmentKeyAvailable;
   $("#environment-key-status").textContent = state.environmentKeyAvailable ? ".env key available as fallback" : "";
   renderKeyManager();
   renderAgentKeySelection();
+  $("#firecrawl-key-status").textContent = firecrawl.configured
+    ? `Configured${firecrawl.last_four ? ` · •••• ${firecrawl.last_four}` : firecrawl.environmentLastFour ? ` · •••• ${firecrawl.environmentLastFour}` : ""}${firecrawl.source === "environment" ? " · environment fallback" : ""}`
+    : "Not configured";
+  $("#firecrawl-key-remove").disabled = !firecrawl.configured || firecrawl.source === "environment";
+}
+
+async function saveFirecrawlKey(event) {
+  event.preventDefault();
+  const key = $("#firecrawl-key-input").value.trim();
+  if (!key) return toast("Enter a Firecrawl API key.");
+  try {
+    await api("/api/provider-keys/firecrawl", { method: "PUT", body: JSON.stringify({ key }) });
+    $("#firecrawl-key-input").value = "";
+    await loadApiKeys();
+    toast("Firecrawl key saved securely.");
+  } catch (error) { toast(error.message); }
+}
+
+async function removeFirecrawlKey() {
+  try {
+    await api("/api/provider-keys/firecrawl", { method: "DELETE" });
+    await loadApiKeys();
+    toast("Saved Firecrawl key removed.");
+  } catch (error) { toast(error.message); }
+}
+
+function showTelegramPairingLink(pairingUrl, botUsername) {
+  const link = $("#telegram-pair-link");
+  link.href = pairingUrl;
+  link.classList.remove("hidden");
+  $("#telegram-status").textContent = `Waiting for pairing with @${botUsername}`;
+  $("#telegram-pair-again").classList.add("hidden");
+  $("#telegram-disconnect").classList.remove("hidden");
+  if (state.telegramPairTimer) clearInterval(state.telegramPairTimer);
+  state.telegramPairTimer = setInterval(async () => {
+    try {
+      const status = await api("/api/telegram");
+      state.telegram = status;
+      if (status.paired) {
+        clearInterval(state.telegramPairTimer);
+        state.telegramPairTimer = null;
+        renderTelegramSettings();
+        toast("Telegram connected. You can now message the bot.");
+      }
+    } catch { /* retry while pairing remains open */ }
+  }, 2000);
+}
+
+function renderTelegramSettings() {
+  const status = state.telegram;
+  $("#telegram-status").textContent = status.paired
+    ? `Connected${status.source === "environment" ? " · environment setup" : ""}`
+    : status.pending ? "Waiting for pairing" : "Not connected";
+  $("#telegram-connect-form").classList.toggle("hidden", status.paired || status.pending);
+  $("#telegram-disconnect").classList.toggle("hidden", !status.configured);
+  $("#telegram-pair-again").classList.toggle("hidden", !status.pending);
+  if (!status.pending && !status.paired) $("#telegram-pair-link").classList.add("hidden");
+}
+
+async function loadTelegramSettings() {
+  state.telegram = await api("/api/telegram");
+  renderTelegramSettings();
+}
+
+function telegramUiError(error) {
+  return error.message === "Not found."
+    ? "The running StingClaw backend is outdated. Stop it, run bun run dev again, refresh this page, and retry."
+    : error.message;
+}
+
+async function connectTelegram(event) {
+  event.preventDefault();
+  try {
+    const result = await api("/api/telegram", {
+      method: "POST",
+      body: JSON.stringify({ action: "connect", token: $("#telegram-bot-token").value }),
+    });
+    $("#telegram-bot-token").value = "";
+    state.telegram = { configured: true, paired: false, pending: true, source: "settings" };
+    renderTelegramSettings();
+    showTelegramPairingLink(result.pairingUrl, result.botUsername);
+  } catch (error) {
+    toast(telegramUiError(error));
+    await loadTelegramSettings().catch(() => {});
+  }
+}
+
+async function regenerateTelegramPairing() {
+  try {
+    const result = await api("/api/telegram", {
+      method: "POST",
+      body: JSON.stringify({ action: "pair" }),
+    });
+    state.telegram = { configured: true, paired: false, pending: true, source: "settings" };
+    renderTelegramSettings();
+    showTelegramPairingLink(result.pairingUrl, result.botUsername);
+  } catch (error) {
+    toast(telegramUiError(error));
+    await loadTelegramSettings().catch(() => {});
+  }
+}
+
+async function disconnectTelegram() {
+  try {
+    await api("/api/telegram", { method: "POST", body: JSON.stringify({ action: "disconnect" }) });
+    if (state.telegramPairTimer) clearInterval(state.telegramPairTimer);
+    state.telegramPairTimer = null;
+    state.telegram = { configured: false, paired: false, pending: false };
+    renderTelegramSettings();
+    toast("Telegram disconnected.");
+  } catch (error) { toast(error.message); }
 }
 
 async function loadServiceSettings() {
@@ -291,7 +459,10 @@ async function removeApiKey(keyId) {
   }
 }
 
-function renderMessages() {
+function renderMessages({ forceBottom = false } = {}) {
+  const previousScrollTop = messageList.scrollTop;
+  const previousMessageCount = messageList.children.length;
+  const wasNearBottom = messageList.scrollHeight - messageList.clientHeight - previousScrollTop < 80;
   messageList.replaceChildren();
   const welcome = $("#welcome-panel");
   welcome.classList.toggle("hidden", state.messages.length > 0);
@@ -327,7 +498,12 @@ function renderMessages() {
     messageList.append(row);
   }
 
-  messageList.scrollTop = messageList.scrollHeight;
+  const hasNewMessages = state.messages.length > previousMessageCount;
+  if (forceBottom || (wasNearBottom && hasNewMessages)) {
+    messageList.scrollTop = messageList.scrollHeight;
+  } else {
+    messageList.scrollTop = previousScrollTop;
+  }
 }
 
 async function loadAgentMemories(agentId = state.activeAgent?.id) {
@@ -844,9 +1020,14 @@ function renderTasks() {
 async function loadAgents() {
   await loadApiKeys();
   await loadServiceSettings();
+  await loadTelegramSettings();
   await loadNotifications();
   const data = await api("/api/agents");
   state.agents = data.agents;
+  if (state.agents.length === 0) {
+    showNoAgents();
+    return;
+  }
   if (!state.activeAgent || !state.agents.some((agent) => agent.id === state.activeAgent.id)) {
     state.activeAgent = state.agents[0] ?? null;
   }
@@ -876,7 +1057,7 @@ async function loadAgentWorkspace(agentId) {
   }
   state.activeConversation = state.conversations[0] ?? null;
   renderConversations();
-  await loadConversationState();
+  await loadConversationState({ forceBottom: true });
 }
 
 async function selectAgent(agentId) {
@@ -897,7 +1078,7 @@ async function selectAgent(agentId) {
 async function selectConversation(conversationId) {
   state.activeConversation = state.conversations.find((item) => item.id === conversationId) ?? null;
   renderConversations();
-  await loadConversationState();
+  await loadConversationState({ forceBottom: true });
   beginPolling();
 }
 
@@ -918,13 +1099,13 @@ async function createNewConversation() {
   $("#message-input").focus();
 }
 
-async function loadConversationState() {
+async function loadConversationState({ forceBottom = false } = {}) {
   if (!state.activeConversation) return;
   const data = await api(`/api/conversations/${encodeURIComponent(state.activeConversation.id)}`);
   state.activeConversation = data.conversation;
   state.messages = data.messages;
   state.tasks = data.tasks;
-  renderMessages();
+  renderMessages({ forceBottom });
   renderTasks();
   renderConversations();
 }
@@ -962,7 +1143,7 @@ async function sendMessage(content) {
       body: JSON.stringify({ content }),
     });
     $("#message-input").value = "";
-    await loadConversationState();
+    await loadConversationState({ forceBottom: true });
     beginPolling();
   } catch (error) {
     toast(error.message);
@@ -1149,7 +1330,13 @@ $("#new-chat-button").addEventListener("click", () => createNewConversation().ca
 $("#settings-button").addEventListener("click", () => setSettingsOpen($("#settings-panel").classList.contains("hidden")));
 $("#close-settings").addEventListener("click", () => setSettingsOpen(false));
 $("#settings-form").addEventListener("submit", saveAgentSettings);
+$("#delete-agent-button").addEventListener("click", deleteActiveAgent);
 $("#key-add-form").addEventListener("submit", addApiKey);
+$("#firecrawl-key-form").addEventListener("submit", saveFirecrawlKey);
+$("#firecrawl-key-remove").addEventListener("click", removeFirecrawlKey);
+$("#telegram-connect-form").addEventListener("submit", connectTelegram);
+$("#telegram-pair-again").addEventListener("click", regenerateTelegramPairing);
+$("#telegram-disconnect").addEventListener("click", disconnectTelegram);
 $("#memory-add-form").addEventListener("submit", addMemoryFromForm);
 $("#schedule-add-form").addEventListener("submit", createSchedule);
 $("#schedule-new-frequency").addEventListener("change", (event) => {

@@ -13,7 +13,9 @@ import {
   createMessage,
   createTask,
   createTaskNotification,
+  getAgent,
   getTask,
+  getTelegramActiveAgentId,
   listAgents,
   listConversations,
   listMessages,
@@ -33,7 +35,8 @@ export function getTelegramConversation() {
     createAgent({ name: "Executive Assistant", description: "Your general-purpose StingClaw agent." });
     agents = listAgents();
   }
-  const agent = agents[0]!;
+  const selectedAgentId = getTelegramActiveAgentId();
+  const agent = agents.find((item) => item.id === selectedAgentId) ?? agents[0]!;
   const conversations = listConversations(agent.id);
   const conversation = conversations.find((item) => item.title === "Telegram")
     ?? createConversation(agent.id, "Telegram");
@@ -125,60 +128,75 @@ export async function sendTelegramTaskUpdate(
 }
 
 export function startTelegramTaskSync(bot: Telegraf, ownerId: number): () => void {
-  let lastMessageAt = new Date().toISOString();
+  const startedAt = new Date().toISOString();
+  const messageCursors = new Map<string, string>();
   const eventCursors = new Map<string, number>();
   const approvalApplying = new Set<string>();
-  const { conversation: initialConversation } = getTelegramConversation();
-  for (const task of listTasks(initialConversation.id)) {
-    const events = listTaskEvents(task.id);
-    eventCursors.set(task.id, events.length);
-    if (task.status === "waiting_approval") {
-      void bot.telegram.sendMessage(ownerId, `🔐 Changes need your review for: ${task.goal.slice(0, 180)}`, Markup.inlineKeyboard([
-        [Markup.button.callback("Show diff", `shared_diff:${task.id}`)],
-        [Markup.button.callback("Approve", `shared_approve:${task.id}`), Markup.button.callback("Reject", `shared_reject:${task.id}`)],
-      ]));
-    }
-  }
+  getTelegramConversation();
   let busy = false;
 
   const timer = setInterval(async () => {
     if (busy) return;
     busy = true;
     try {
-      const { conversation } = getTelegramConversation();
-      const messages = listMessages(conversation.id);
-      for (const message of messages) {
-        if (message.created_at <= lastMessageAt || (message.sender === "user" && message.source === "telegram")) continue;
-        await bot.telegram.sendMessage(ownerId, clip(`${message.sender === "user" ? "You (web)" : "Agent"}:\n${message.content}`, 3900));
-      }
-      if (messages.length) lastMessageAt = messages[messages.length - 1]!.created_at;
-
-      for (const task of listTasks(conversation.id)) {
-        const events = listTaskEvents(task.id);
-        const cursor = eventCursors.get(task.id) ?? 0;
-        for (const event of events.slice(cursor)) {
-          if (event.event_type === "started" || event.event_type === "tool_used" || event.event_type === "api_key_fallback") {
-            await bot.telegram.sendMessage(ownerId, `ℹ️ ${event.message}`);
-          }
-          if (event.event_type === "approval_requested" && task.status === "waiting_approval") {
-            await bot.telegram.sendMessage(ownerId, `🔐 ${event.message}\nReview the proposed changes:`, Markup.inlineKeyboard([
-              [Markup.button.callback("Show diff", `shared_diff:${task.id}`)],
-              [Markup.button.callback("Approve", `shared_approve:${task.id}`), Markup.button.callback("Reject", `shared_reject:${task.id}`)],
-            ]));
-          }
-          if (event.event_type === "applying_approved_changes") approvalApplying.add(task.id);
-          if (event.event_type === "approval_rejected") {
-            await bot.telegram.sendMessage(ownerId, "Changes rejected. Nothing was applied.");
-          }
-          if (event.event_type === "cancelled") {
-            await bot.telegram.sendMessage(ownerId, `⏹️ ${event.message}`);
-          }
-          if (event.event_type === "completed" && approvalApplying.delete(task.id)) {
-            await bot.telegram.sendMessage(ownerId, `✅ Approved changes applied.\n${event.message}`);
-          }
-          if (event.event_type === "failed") await bot.telegram.sendMessage(ownerId, clip(`❌ Task failed: ${event.message}`, 3900));
+      const conversations = listAgents().flatMap((agent) => listConversations(agent.id));
+      for (const conversation of conversations) {
+        const newConversation = !messageCursors.has(conversation.id);
+        if (newConversation) {
+          messageCursors.set(conversation.id, Date.parse(conversation.created_at) > Date.parse(startedAt)
+            ? conversation.created_at
+            : startedAt);
         }
-        eventCursors.set(task.id, events.length);
+        const messages = listMessages(conversation.id);
+        let messageCursor = messageCursors.get(conversation.id) ?? startedAt;
+        for (const message of messages) {
+          if (message.created_at <= messageCursor) continue;
+          const isWebMessage = message.source === "web";
+          const isTelegramAgentReply = message.source === "telegram" && message.sender === "agent";
+          if (!isWebMessage && !isTelegramAgentReply) continue;
+          const agentName = getAgent(conversation.agent_id)?.name ?? "Agent";
+          const chatName = conversation.title || "New chat";
+          const sender = message.sender === "user" ? "You (web)" : agentName;
+          await bot.telegram.sendMessage(ownerId, clip(`💬 ${chatName} · ${sender}\n\n${message.content}`, 3900));
+        }
+        if (messages.length) {
+          messageCursor = messages[messages.length - 1]!.created_at;
+          messageCursors.set(conversation.id, messageCursor);
+        }
+
+        for (const task of listTasks(conversation.id)) {
+          const events = listTaskEvents(task.id);
+          if (!eventCursors.has(task.id)) {
+            const taskWasAlreadyThere = Date.parse(task.created_at) <= Date.parse(startedAt);
+            eventCursors.set(task.id, taskWasAlreadyThere ? events.length : 0);
+            if (taskWasAlreadyThere && task.status === "waiting_approval") {
+              await bot.telegram.sendMessage(ownerId, `🔐 Changes need your review for: ${task.goal.slice(0, 180)}`, Markup.inlineKeyboard([
+                [Markup.button.callback("Show diff", `shared_diff:${task.id}`)],
+                [Markup.button.callback("Approve", `shared_approve:${task.id}`), Markup.button.callback("Reject", `shared_reject:${task.id}`)],
+              ]));
+            }
+          }
+          const cursor = eventCursors.get(task.id) ?? 0;
+          for (const event of events.slice(cursor)) {
+            if (event.event_type === "started" || event.event_type === "tool_used" || event.event_type === "api_key_fallback" || event.event_type.startsWith("delegated_task_")) {
+              await bot.telegram.sendMessage(ownerId, `ℹ️ [${getAgent(conversation.agent_id)?.name ?? "Agent"}] ${event.message}`);
+            }
+            if (event.event_type === "approval_requested" && task.status === "waiting_approval") {
+              await bot.telegram.sendMessage(ownerId, `🔐 [${getAgent(conversation.agent_id)?.name ?? "Agent"}] ${event.message}\nReview the proposed changes:`, Markup.inlineKeyboard([
+                [Markup.button.callback("Show diff", `shared_diff:${task.id}`)],
+                [Markup.button.callback("Approve", `shared_approve:${task.id}`), Markup.button.callback("Reject", `shared_reject:${task.id}`)],
+              ]));
+            }
+            if (event.event_type === "applying_approved_changes") approvalApplying.add(task.id);
+            if (event.event_type === "approval_rejected") await bot.telegram.sendMessage(ownerId, `[${getAgent(conversation.agent_id)?.name ?? "Agent"}] Changes rejected. Nothing was applied.`);
+            if (event.event_type === "cancelled") await bot.telegram.sendMessage(ownerId, `⏹️ [${getAgent(conversation.agent_id)?.name ?? "Agent"}] ${event.message}`);
+            if (event.event_type === "completed" && approvalApplying.delete(task.id)) {
+              await bot.telegram.sendMessage(ownerId, `✅ [${getAgent(conversation.agent_id)?.name ?? "Agent"}] Approved changes applied.\n${event.message}`);
+            }
+            if (event.event_type === "failed") await bot.telegram.sendMessage(ownerId, clip(`❌ [${getAgent(conversation.agent_id)?.name ?? "Agent"}] Task failed: ${event.message}`, 3900));
+          }
+          eventCursors.set(task.id, events.length);
+        }
       }
 
       for (const notification of listPendingScheduledNotifications()) {

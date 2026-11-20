@@ -12,6 +12,7 @@ import { generatePlan } from "./planner.ts";
 import { printPlan, selectSteps } from "./selection.ts";
 import type { PlanStep } from "./types.ts";
 import { createWebTools } from "./web-tools.ts";
+import { getFirecrawlApiKey } from "../../storage/repository";
 
 
 function stepPrompt(goal: string, step: PlanStep): string {
@@ -45,7 +46,7 @@ export async function runPlanMode(): Promise<void> {
 
   const tools = {
     ...createAgentTools(executor),
-    ...(process.env.FIRECRAWL_API_KEY ? createWebTools(tracker) : {})
+    ...(getFirecrawlApiKey() ? createWebTools(tracker) : {})
   };
 
   for (const step of selected) {

@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { serve, type Server } from "bun";
+import { Telegraf } from "telegraf";
 import { ActionTracker } from "../modes/agent/action-tracker";
 import { ToolExecutor } from "../modes/agent/tool-executer";
 import { defaultAgentConfig } from "../modes/agent/types";
@@ -7,16 +8,26 @@ import type { AgentPermissions } from "../modes/agent/types";
 import { launchTaskWorker } from "../modes/agent/task-worker";
 import { isStartupEnabled, setStartupEnabled } from "../modes/backend/startup";
 import { isValidTimeZone, nextScheduledRun, type ScheduleFrequency } from "../modes/scheduler/time";
+import { startTelegramService, stopTelegramService } from "../modes/telegram";
 import {
   addTaskEvent,
   createApiKey,
   createAgent,
+  deleteAgent,
   createConversation,
   createMessage,
   createTask,
   createTaskNotification,
   createAgentMemory,
   getAgent,
+  beginTelegramPairing,
+  disconnectTelegramSettings,
+  getTelegramBotToken,
+  getTelegramOwnerId,
+  getTelegramPairingStatus,
+  getProviderSecretInfo,
+  setProviderSecret,
+  deleteProviderSecret,
   getConversation,
   getTask,
   listApiKeys,
@@ -67,6 +78,20 @@ function json(data: unknown, status = 200): Response {
 
 function error(message: string, status: number): Response {
   return json({ error: message }, status);
+}
+
+function telegramConnectionError(cause: unknown): string {
+  const message = cause instanceof Error ? cause.message : String(cause);
+  if (/\b404\b|not found/i.test(message)) {
+    return "Telegram did not recognize that bot token. Revoke it with BotFather, create a fresh token, and paste the complete token from the BotFather message.";
+  }
+  if (/\b401\b|unauthorized|invalid token/i.test(message)) {
+    return "Telegram rejected that bot token. Check that it is complete and has not been revoked, then try a fresh token from BotFather.";
+  }
+  if (/fetch failed|timeout|network|socket/i.test(message)) {
+    return "StingClaw could not reach Telegram. Check your internet connection or VPN, then try again.";
+  }
+  return `Telegram connection failed: ${message}`;
 }
 
 async function readJson(request: Request): Promise<Record<string, unknown>> {
@@ -135,6 +160,74 @@ async function handleApi(request: Request, port: number): Promise<Response> {
   }
 
   try {
+    if (segments.length === 2 && segments[0] === "api" && segments[1] === "telegram") {
+      const savedToken = getProviderSecretInfo("telegram_bot_token");
+      if (method === "GET") {
+        const pending = getTelegramPairingStatus();
+        return json({
+          configured: Boolean(getTelegramBotToken()),
+          paired: Boolean(getTelegramOwnerId()),
+          pending: pending.pending,
+          expiresAt: pending.expiresAt,
+          source: savedToken.configured ? "settings" : process.env.TELEGRAM_BOT_TOKEN?.trim() ? "environment" : null,
+        });
+      }
+      if (method === "POST") {
+        const body = await readJson(request);
+        if (body.action === "disconnect") {
+          await stopTelegramService();
+          disconnectTelegramSettings();
+          return json({ disconnected: true });
+        }
+
+        let token = "";
+        if (body.action === "connect") {
+          token = typeof body.token === "string" ? body.token.trim() : "";
+          if (token.length < 20 || token.length > 512 || /\s/.test(token)) return error("Enter a valid Telegram bot token from BotFather.", 400);
+          try {
+            const probe = new Telegraf(token);
+            await probe.telegram.getMe();
+          } catch (cause) {
+            return error(telegramConnectionError(cause), 400);
+          }
+          setProviderSecret("telegram_bot_token", token);
+        } else if (body.action === "pair") {
+          token = getTelegramBotToken() ?? "";
+          if (!token) return error("Save a bot token first.", 409);
+        } else {
+          return error("Choose connect, pair, or disconnect.", 400);
+        }
+
+        await stopTelegramService();
+        const pairing = beginTelegramPairing();
+        try {
+          const bot = await startTelegramService(token);
+          const pairingUrl = `https://t.me/${bot.username}?start=${encodeURIComponent(pairing.code)}`;
+          return json({ pairingUrl, botUsername: bot.username, expiresAt: pairing.expiresAt, pending: true });
+        } catch (cause) {
+          return error(telegramConnectionError(cause), 400);
+        }
+      }
+    }
+
+    if (segments.length === 3 && segments[0] === "api" && segments[1] === "provider-keys" && segments[2] === "firecrawl") {
+      const saved = getProviderSecretInfo("firecrawl");
+      if (method === "GET") return json({
+        ...saved,
+        configured: saved.configured || Boolean(process.env.FIRECRAWL_API_KEY?.trim()),
+        source: saved.configured ? "settings" : process.env.FIRECRAWL_API_KEY?.trim() ? "environment" : null,
+        environmentLastFour: !saved.configured && process.env.FIRECRAWL_API_KEY?.trim() ? process.env.FIRECRAWL_API_KEY.trim().slice(-4) : null,
+      });
+      if (method === "PUT") {
+        const body = await readJson(request);
+        const key = typeof body.key === "string" ? body.key.trim() : "";
+        if (key.length < 16 || key.length > 512 || /\s/.test(key)) return error("The Firecrawl API key format is invalid.", 400);
+        try { return json({ ...setProviderSecret("firecrawl", key), source: "settings" }); }
+        catch (cause) { return error(cause instanceof Error ? cause.message : "Could not securely save the Firecrawl key.", 400); }
+      }
+      if (method === "DELETE") return json({ deleted: deleteProviderSecret("firecrawl") });
+    }
+
     if (segments.length === 2 && segments[0] === "api" && segments[1] === "service" && method === "GET") {
       return json({ running: true, startupEnabled: isStartupEnabled(), startupSupported: process.platform === "win32" });
     }
@@ -209,16 +302,7 @@ async function handleApi(request: Request, port: number): Promise<Response> {
     }
 
     if (segments.length === 2 && segments[0] === "api" && segments[1] === "agents" && method === "GET") {
-      let agents = listAgents();
-      if (agents.length === 0) {
-        createAgent({
-          name: "Executive Assistant",
-          description: "Your general-purpose StingClaw agent.",
-          instructions: "",
-        });
-        agents = listAgents();
-      }
-      return json({ agents });
+      return json({ agents: listAgents() });
     }
 
     if (segments.length === 2 && segments[0] === "api" && segments[1] === "agents" && method === "POST") {
@@ -270,6 +354,16 @@ async function handleApi(request: Request, port: number): Promise<Response> {
         apiKeyIds: [...new Set(apiKeyIds as string[])],
         permissions: validatedPermissions,
       }) });
+    }
+
+    if (segments.length === 3 && segments[0] === "api" && segments[1] === "agents" && method === "DELETE") {
+      const agent = getAgent(segments[2]!);
+      if (!agent) return error("Agent not found.", 404);
+      const activeTask = listConversations(agent.id)
+        .flatMap((conversation) => listTasks(conversation.id))
+        .find((task) => ["queued", "running", "waiting_approval"].includes(task.status));
+      if (activeTask) return error("This agent has an active task. Stop it or wait for it to finish before deleting the agent.", 409);
+      return deleteAgent(agent.id) ? json({ deleted: true }) : error("Agent could not be deleted.", 500);
     }
 
     if (segments.length === 4 && segments[0] === "api" && segments[1] === "agents" && segments[3] === "schedules") {

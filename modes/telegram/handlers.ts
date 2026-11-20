@@ -1,4 +1,5 @@
 import type { Telegraf } from "telegraf";
+import { Markup } from "telegraf";
 import { isOwner } from "./auth";
 import { WELCOME } from "./constants";
 import { clip, commandArg } from "./text";
@@ -6,7 +7,7 @@ import { generatePlan } from "../plan/planner";
 import { planKeyboard, planMessage, planSessions, refreshPlanUi, type PlanSession } from "./plan-session";
 import { approvalDiff, approvalSessions } from "./approval-session";
 import { getTelegramConversation, sendTelegramTaskUpdate, submitTelegramMessage } from "./shared-tasks";
-import { createAgentMemory, deleteAgentMemory, listAgentMemories, listTasks } from "../../storage/repository";
+import { claimTelegramOwner, createAgentMemory, deleteAgentMemory, getAgent, getTelegramOwnerId, listAgentMemories, listAgents, listTasks, setTelegramActiveAgentId } from "../../storage/repository";
 
 const planRequests = new Set<number>();
 const activeTaskChats = new Set<number>();
@@ -22,9 +23,15 @@ function chatIsBusy(chatId: number): boolean {
 
 
 
-export function registerHandlers(bot: Telegraf) {
+export function registerHandlers(bot: Telegraf, onPaired?: (ownerId: number) => void) {
   bot.command("start", async (ctx) => {
-    if (!isOwner(ctx.chat.id)) return;
+    if (isOwner(ctx.chat.id)) return ctx.reply(WELCOME, { parse_mode: "Markdown" });
+    if (getTelegramOwnerId() || ctx.chat.type !== "private") return;
+    const code = commandArg(ctx.message.text, "start");
+    if (!code || !claimTelegramOwner(ctx.from.id, code)) {
+      return ctx.reply("This bot is not paired yet. Start Telegram pairing from StingClaw Settings and use the fresh pairing link.");
+    }
+    onPaired?.(ctx.from.id);
     await ctx.reply(WELCOME, { parse_mode: "Markdown" });
   });
 
@@ -57,6 +64,26 @@ export function registerHandlers(bot: Telegraf) {
     } catch (error) {
       await ctx.reply(error instanceof Error ? error.message : "Could not start the task.");
     }
+  });
+
+  bot.command("agents", async (ctx) => {
+    if (!isOwner(ctx.chat.id)) return;
+    getTelegramConversation();
+    const agents = listAgents();
+    const selectedId = getTelegramConversation().agent.id;
+    await ctx.reply("Choose which StingClaw agent to chat with:", Markup.inlineKeyboard(
+      agents.map((agent) => [Markup.button.callback(`${agent.id === selectedId ? "✓ " : ""}${agent.name}`, `telegram_agent:${agent.id}`)]),
+    ));
+  });
+
+  bot.action(/^telegram_agent:([\w-]+)$/, async (ctx) => {
+    if (!isOwner(ctx.chat!.id)) return ctx.answerCbQuery();
+    const agent = getAgent(ctx.match[1]!);
+    if (!agent) return ctx.answerCbQuery("This agent no longer exists.");
+    setTelegramActiveAgentId(agent.id);
+    getTelegramConversation();
+    await ctx.answerCbQuery(`Selected ${agent.name}`);
+    await ctx.reply(`Now chatting with ${agent.name}. Send your next message here.`);
   });
 
   bot.on("text", async (ctx) => {

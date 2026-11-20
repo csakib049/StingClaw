@@ -90,7 +90,7 @@
           <fieldset class="permission-fieldset">
             <legend>Agent permissions</legend>
             <label class="permission-row"><input id="permission-web" type="checkbox" /><span>Search and read public web pages (read-only)</span></label>
-            <p class="settings-note">Web search requires a <code>FIRECRAWL_API_KEY</code> in the local environment. This permission starts off.</p>
+            <p class="settings-note">Add a Firecrawl key in Settings. Web access is off by default and only reads public pages.</p>
             <label class="permission-row"><input id="permission-file-read" type="checkbox" checked disabled /><span>Read workspace files</span></label>
             <label class="permission-row"><input id="permission-file-create" type="checkbox" /><span>Create files</span></label>
             <label class="permission-row"><input id="permission-file-modify" type="checkbox" /><span>Modify or delete files</span></label>
@@ -102,6 +102,8 @@
             <div id="agent-key-selection" class="key-list"></div>
           </div>
           <button class="save-button" type="submit">Save settings</button>
+          <button id="delete-agent-button" class="quiet-button danger-button" type="button">Delete agent</button>
+          <p class="settings-note">Deleting an agent also removes its conversations, memories, and scheduled jobs. Agents with active tasks cannot be deleted.</p>
         </form>
         <section class="key-manager">
           <div class="key-section-heading"><strong>OpenRouter API keys</strong><span id="environment-key-status"></span></div>
@@ -112,6 +114,26 @@
             <button class="quiet-button" type="submit">Add key</button>
           </form>
           <div id="key-list" class="key-list"></div>
+        </section>
+        <section class="key-manager">
+          <div class="key-section-heading"><strong>Firecrawl web search key</strong><span id="firecrawl-key-status">Not configured</span></div>
+          <p class="settings-note">Saved encrypted for this Windows account. The full key is shown only while entering it. A key in the local environment remains supported as a fallback.</p>
+          <form id="firecrawl-key-form" class="key-add-form">
+            <label>Firecrawl API key<input id="firecrawl-key-input" type="password" autocomplete="new-password" placeholder="Paste Firecrawl key" /></label>
+            <button class="quiet-button" type="submit">Save web key</button>
+            <button id="firecrawl-key-remove" class="quiet-button danger-button" type="button">Remove saved key</button>
+          </form>
+        </section>
+        <section class="key-manager telegram-manager">
+          <div class="key-section-heading"><strong>Connect Telegram</strong><span id="telegram-status">Not connected</span></div>
+          <p class="settings-note">Use one Telegram bot for all your agents. Create a bot with <a href="https://t.me/BotFather" target="_blank" rel="noreferrer">@BotFather</a>, paste its token here, then open the one-time pairing link. You do not need to find or enter your Telegram ID.</p>
+          <form id="telegram-connect-form" class="key-add-form">
+            <label>Telegram bot token<input id="telegram-bot-token" type="password" autocomplete="new-password" placeholder="Paste token from BotFather" required /></label>
+            <button class="quiet-button" type="submit">Connect bot</button>
+          </form>
+          <a id="telegram-pair-link" class="quiet-button hidden" target="_blank" rel="noreferrer">Open pairing link in Telegram</a>
+          <button id="telegram-pair-again" class="quiet-button hidden" type="button">Generate a new pairing link</button>
+          <button id="telegram-disconnect" class="quiet-button danger-button hidden" type="button">Disconnect Telegram</button>
         </section>
         <section class="key-manager service-manager">
           <div class="key-section-heading"><strong>Background service</strong><span id="service-status">Checking service…</span></div>

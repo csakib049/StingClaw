@@ -9,6 +9,7 @@ import { defaultAgentConfig } from "../agent/types";
 import { renderTerminalMarkdown } from "../../tui/terminal-md";
 import { runApprovalFlow } from "../agent/approval";
 import { createWebTools } from "../plan/web-tools";
+import { getFirecrawlApiKey } from "../../storage/repository";
 
 
 function createAskTools(executor: ToolExecutor) {
@@ -95,7 +96,7 @@ export async function runAskMode() {
 
     const tools = {
         ...createAskTools(executor),
-        ...(process.env.FIRECRAWL_API_KEY ? createWebTools(tracker) : {}),
+        ...(getFirecrawlApiKey() ? createWebTools(tracker) : {}),
     };
 
     const agent = new ToolLoopAgent({

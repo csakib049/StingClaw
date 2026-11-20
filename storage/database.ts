@@ -51,6 +51,23 @@ db.run(`
 `);
 
 db.run(`
+  CREATE TABLE IF NOT EXISTS provider_secrets (
+    service TEXT PRIMARY KEY,
+    encrypted_value TEXT NOT NULL,
+    last_four TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+`);
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS app_settings (
+    setting_key TEXT PRIMARY KEY,
+    setting_value TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+`);
+
+db.run(`
   CREATE TABLE IF NOT EXISTS conversations (
     id TEXT PRIMARY KEY,
     agent_id TEXT NOT NULL REFERENCES agents(id) ON DELETE CASCADE,

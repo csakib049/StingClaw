@@ -9,6 +9,7 @@ import { createWebTools } from "../plan/web-tools.ts";
 import type { Plan, PlanStep } from "../plan/types.ts";
 import { replyMd } from "./text.ts";
 import { finishOrApprove } from "./approval-session.ts";
+import { getFirecrawlApiKey } from "../../storage/repository";
 
 function readOnlyConfig(): AgentConfig {
   const c = defaultAgentConfig();
@@ -63,7 +64,7 @@ function createReadOnlyTools(executor: ToolExecutor) {
 }
 
 function extraWebTools(tracker: ActionTracker) {
-  return process.env.FIRECRAWL_API_KEY ? createWebTools(tracker) : {};
+  return getFirecrawlApiKey() ? createWebTools(tracker) : {};
 }
 
 

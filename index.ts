@@ -9,6 +9,7 @@ import { runStoredTask } from "./modes/agent/task-worker";
 import { startWebServer } from "./web/server";
 import { runBackendService } from "./modes/backend/service";
 import { startScheduledJobRunner } from "./modes/scheduler/runner";
+import { startConfiguredTelegramService } from "./modes/telegram";
 
 
 const program = new Command();
@@ -38,6 +39,7 @@ program
     .action(() => {
         startWebServer();
         startScheduledJobRunner();
+        void startConfiguredTelegramService().catch((error) => console.error("Telegram service could not start:", error));
     });
 
 program
