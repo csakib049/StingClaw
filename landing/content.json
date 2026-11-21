@@ -1,0 +1,196 @@
+{
+  "title": "StingClaw — AI agents on your computer",
+  "description": "Run named AI agents on your computer. Work from a local web interface or Telegram, with permissions and proposed changes under your control.",
+  "navigation": [
+    { "label": "Modes", "href": "#modes" },
+    { "label": "Agents", "href": "#agents" },
+    { "label": "Approvals", "href": "#approvals" },
+    { "label": "FAQ", "href": "#faq" }
+  ],
+  "hero": {
+    "headline": "AI agents that run on your computer.",
+    "description": "Create named agents, chat from a local web interface or Telegram, and review proposed changes before they reach your files.",
+    "primary": "Set up StingClaw",
+    "secondary": "See how it works",
+    "setupLabel": "Start from a StingClaw checkout",
+    "setupCommands": ["bun install", "bun run dev"],
+    "setupNote": "Bun is required. Add your OpenRouter API key in local Settings.",
+    "surfaceRows": [
+      { "name": "Web app", "description": "Chat with your agents in a local browser interface.", "action": "Explore modes", "href": "#modes" },
+      { "name": "Telegram", "description": "Message the same saved agents from your phone.", "action": "See how", "href": "#faq" },
+      { "name": "Background service", "description": "Tasks continue while your computer and service are running.", "action": "View task flow", "href": "#task-flow" }
+    ]
+  },
+  "appFrame": {
+    "label": "Local",
+    "agentsTitle": "Your agents",
+    "agents": [
+      { "name": "Reznov", "description": "General purpose" },
+      { "name": "Research", "description": "Read-only research" }
+    ],
+    "activeAgent": "Reznov",
+    "activeDescription": "Your general-purpose StingClaw agent.",
+    "userMessage": "Review the changes in my project.",
+    "agentMessage": "I found a few updates to review. Here’s what changed.",
+    "taskLabel": "Waiting for your review",
+    "taskDescription": "1 proposed file change",
+    "taskStatus": "Waiting for review",
+    "composer": "Message this agent..."
+  },
+  "proof": [
+    { "title": "Runs on your computer", "description": "Agents, chats, and settings are stored locally." },
+    { "title": "Your API keys", "description": "Connect OpenRouter keys and choose them per agent." },
+    { "title": "Review proposed changes", "description": "File edits and shell actions wait for approval." },
+    { "title": "Web or Telegram", "description": "Use your agents locally or from your phone." }
+  ],
+  "pillars": {
+    "title": "Built to stay on your side",
+    "description": "A local workspace for agents you configure, with clear controls around what they can do.",
+    "items": [
+      {
+        "title": "Local first",
+        "description": "Your workspace lives on your computer.",
+        "facts": ["Agent settings and conversations use a local SQLite database.", "Background tasks need the local service to be running.", "No StingClaw account is required."],
+        "link": "See the task flow",
+        "href": "#task-flow"
+      },
+      {
+        "title": "Your model keys",
+        "description": "Choose how each agent connects.",
+        "facts": ["Use your own OpenRouter API keys.", "Choose a model for each agent.", "Set a fallback key order for each agent."],
+        "link": "Explore agents",
+        "href": "#agents"
+      },
+      {
+        "title": "You stay in control",
+        "description": "Give each agent only the access it needs.",
+        "facts": ["Set file, shell, and web permissions per agent.", "Review proposed changes before applying them.", "Inspect task updates in the local interface."],
+        "link": "How review works",
+        "href": "#approvals"
+      }
+    ]
+  },
+  "modes": {
+    "title": "Three ways to work with an agent",
+    "description": "Choose a mode that fits the work, from a quick question to a task that uses tools.",
+    "items": [
+      {
+        "name": "Ask",
+        "short": "Read-only answers, with an option to save.",
+        "heading": "Ask about your workspace",
+        "body": "Ask a question and let the agent inspect relevant files. Ask mode can optionally save the answer as a Markdown file after you confirm.",
+        "can": ["Read and search workspace files", "Analyze project structure", "Use web search when configured"],
+        "cannot": ["Run shell commands", "Modify existing files"],
+        "conversation": [
+          { "kind": "you", "text": "What does the scheduler do?" },
+          { "kind": "step", "text": "Read 3 files", "state": "done" },
+          { "kind": "step", "text": "Search scheduler routes", "state": "done" },
+          { "kind": "answer", "text": "It checks due jobs while the background service is running." }
+        ]
+      },
+      {
+        "name": "Plan",
+        "short": "Research first. No files are changed.",
+        "heading": "Get a plan before work starts",
+        "body": "Plan mode researches with read-only tools and returns steps you can review. You choose which steps to send to an agent.",
+        "can": ["Read workspace files", "Use web tools when configured", "Prepare up to 15 steps"],
+        "cannot": ["Edit files while planning", "Run shell commands while planning"],
+        "conversation": [
+          { "kind": "you", "text": "Add a weekly project summary." },
+          { "kind": "step", "text": "Inspect scheduled jobs", "state": "done" },
+          { "kind": "answer", "text": "Plan ready · 4 steps" },
+          { "kind": "choice", "text": "Review steps and choose what to run" }
+        ]
+      },
+      {
+        "name": "Agent",
+        "short": "Work with tools. Review proposed changes.",
+        "heading": "Hand off a task",
+        "body": "Agent mode can use tools you enable. File changes and shell actions are staged so you can review and approve them.",
+        "can": ["Read and search files", "Use enabled tools and delegate research", "Stage file edits and shell actions"],
+        "cannot": ["Apply staged changes without your approval", "Use tools you have disabled"],
+        "conversation": [
+          { "kind": "you", "text": "Update the scheduler docs." },
+          { "kind": "step", "text": "Read 4 files", "state": "done" },
+          { "kind": "step", "text": "Edited scheduler.md +8 -2", "state": "done" },
+          { "kind": "approval", "text": "1 proposed change · Review before applying" }
+        ]
+      }
+    ]
+  },
+  "agents": {
+    "title": "An agent for each job",
+    "description": "Give each agent its own purpose, model, keys, and permissions. Add another when the work needs a different set of instructions.",
+    "facts": ["Set custom instructions for each agent.", "Choose a model and API key order.", "Limit file, web, and shell access.", "Schedule recurring jobs."],
+    "examples": ["Research", "Writing", "Project helper", "Daily briefing"],
+    "settings": [
+      { "label": "Name", "value": "Research agent" },
+      { "label": "Description", "value": "Read-only project research" },
+      { "label": "Model", "value": "OpenRouter model" },
+      { "label": "API keys", "value": "Primary key · fallback key" }
+    ],
+    "permissions": [
+      { "label": "Read workspace files", "enabled": true },
+      { "label": "Search public web pages", "enabled": true },
+      { "label": "Create files", "enabled": false },
+      { "label": "Modify or delete files", "enabled": false },
+      { "label": "Run shell commands", "enabled": false }
+    ]
+  },
+  "approvals": {
+    "title": "Nothing changes until you review it",
+    "description": "StingClaw stages file edits and shell actions. Review the proposed changes, then approve or reject them.",
+    "facts": ["See proposed file changes together with a diff.", "Approve or reject before changes are applied.", "Set permissions for each agent."],
+    "file": "src/scheduler.ts",
+    "counts": "+1  −1",
+    "lines": [
+      { "kind": "context", "text": "  const interval = 15_000;" },
+      { "kind": "delete", "text": "- const interval = 60_000;" },
+      { "kind": "add", "text": "+ const interval = 15_000;" },
+      { "kind": "context", "text": "  startScheduledJobRunner(interval);" }
+    ],
+    "caption": "Illustration of the review step",
+    "dataLine": "Agent data is stored locally in SQLite. Prompts are sent to the model provider you choose through OpenRouter."
+  },
+  "flow": {
+    "title": "How a task flows",
+    "description": "A task moves through the local service, then waits for your review when it proposes changes.",
+    "nodes": [
+      { "icon": "U", "title": "You", "description": "Web or Telegram" },
+      { "icon": "↻", "title": "Background service", "description": "Runs locally" },
+      { "icon": "A", "title": "Agent", "description": "Model and tools" },
+      { "icon": "✓", "title": "Your review", "description": "Approve or reject", "review": true },
+      { "icon": "⌂", "title": "Your files", "description": "Approved changes" }
+    ],
+    "steps": [
+      { "title": "Ask", "description": "Send a task from the web app or Telegram." },
+      { "title": "Work", "description": "The local service runs the agent and tools." },
+      { "title": "Review", "description": "Inspect proposed changes before applying." },
+      { "title": "Apply", "description": "Approved changes reach your workspace." }
+    ]
+  },
+  "faq": {
+    "title": "Questions",
+    "items": [
+      { "question": "What is StingClaw?", "answer": "A local app for running named AI agents. Chat through a local web interface or Telegram." },
+      { "question": "Does my data leave my computer?", "answer": "Agent settings and conversation history are stored locally. Messages you send to an agent go to the model provider you choose through OpenRouter. Public web search also sends requests to the configured web search provider." },
+      { "question": "Can an agent change my files without asking?", "answer": "File edits and shell actions are staged for your review. You approve or reject proposed changes before they are applied." },
+      { "question": "Which models can I use?", "answer": "You can choose models available through OpenRouter and use your own API keys." },
+      { "question": "What do I need to run StingClaw?", "answer": "You need Bun and an OpenRouter API key. StingClaw currently uses Windows user-level encryption to store API keys, so Windows is the supported platform." },
+      { "question": "Can I use StingClaw from my phone?", "answer": "Yes, through Telegram. Your computer and StingClaw background service must be running." },
+      { "question": "Does it keep working when I close the browser?", "answer": "Yes, while your computer and the background service are running. If you stop the service or turn off the computer, tasks cannot continue." }
+    ]
+  },
+  "cta": {
+    "title": "Set up your first agent.",
+    "description": "Start StingClaw locally, add an API key, and talk to an agent from your browser or Telegram.",
+    "primary": "View setup steps",
+    "secondary": "Explore the modes"
+  },
+  "footer": {
+    "tagline": "AI agents on your computer.",
+    "product": ["Modes", "Agents", "Approvals", "FAQ"],
+    "setup": ["Local setup", "Task flow"],
+    "platform": "Windows supported today"
+  }
+}
