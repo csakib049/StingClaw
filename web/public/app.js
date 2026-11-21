@@ -438,22 +438,27 @@ function renderKeyManager() {
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "text-button danger-text";
-    remove.textContent = "Remove";
-    remove.addEventListener("click", () => removeApiKey(key.id));
+    remove.textContent = "Delete";
+    remove.setAttribute("aria-label", `Delete ${key.label} API key`);
+    remove.addEventListener("click", () => deleteApiKey(key.id, key.label));
     row.append(description, remove);
     container.append(row);
   }
 }
 
-async function removeApiKey(keyId) {
+async function deleteApiKey(keyId, label) {
+  if (!window.confirm(`Delete the “${label}” API key? It will be removed from every agent on this computer.`)) return;
   try {
     await api(`/api/keys/${encodeURIComponent(keyId)}`, { method: "DELETE" });
-    state.activeAgent.api_key_ids = (state.activeAgent.api_key_ids ?? []).filter((id) => id !== keyId);
-    state.agents = state.agents.map((agent) => agent.id === state.activeAgent.id
-      ? { ...agent, api_key_ids: agent.api_key_ids.filter((id) => id !== keyId) }
-      : agent);
+    if (state.activeAgent) {
+      state.activeAgent.api_key_ids = (state.activeAgent.api_key_ids ?? []).filter((id) => id !== keyId);
+    }
+    state.agents = state.agents.map((agent) => ({
+      ...agent,
+      api_key_ids: agent.api_key_ids.filter((id) => id !== keyId),
+    }));
     await loadApiKeys();
-    toast("API key removed from this computer and all agents.");
+    toast("API key deleted from this computer and all agents.");
   } catch (error) {
     toast(error.message);
   }
@@ -655,8 +660,9 @@ function renderSchedules() {
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "quiet-button danger-button";
-    remove.textContent = "Delete";
-    remove.addEventListener("click", () => removeSchedule(schedule.id));
+    remove.textContent = "Delete job";
+    remove.setAttribute("aria-label", `Delete scheduled job ${schedule.name}`);
+    remove.addEventListener("click", () => deleteSchedule(schedule.id, schedule.name));
     actions.append(save, pause, remove);
     body.append(actions);
 
@@ -762,11 +768,12 @@ async function changeScheduleState(scheduleId, action) {
   }
 }
 
-async function removeSchedule(scheduleId) {
+async function deleteSchedule(scheduleId, scheduleName) {
+  if (!window.confirm(`Delete “${scheduleName}” and its saved run history? This cannot be undone.`)) return;
   try {
     await api(`/api/schedules/${encodeURIComponent(scheduleId)}`, { method: "DELETE" });
     await loadSchedules();
-    toast("Scheduled job deleted. Existing tasks and conversations remain saved.");
+    toast("Scheduled job and its saved run history deleted.");
   } catch (error) {
     toast(error.message);
   }

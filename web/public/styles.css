@@ -292,6 +292,10 @@ kbd { padding: 2px 5px; border: 1px solid #363941; border-radius: 4px; backgroun
 .schedule-timezone-hint { color: #7d848e; font-size: 9px; }
 .managed-key-row { font-size: 9px; }
 .danger-text { color: #ef9999; }
+.managed-key-row .danger-text { min-height: 26px; flex: 0 0 auto; padding: 0 8px; border: 1px solid #56383c; border-radius: 6px; background: #24191c; font-size: 9px; }
+.managed-key-row .danger-text:hover { border-color: #94575d; background: #342024; color: #ffc1c1; }
+.schedule-actions .danger-button { border-color: #56383c; background: #24191c; color: #f1aaaa; }
+.schedule-actions .danger-button:hover { border-color: #94575d; background: #342024; color: #ffc1c1; }
 .save-button { display: inline-flex; min-height: 35px; align-items: center; justify-content: center; padding: 0 13px; border: 1px solid #51be91; border-radius: 8px; background: #4abb8d; color: #061910; font-size: 11px; font-weight: 700; cursor: pointer; }
 .save-button:hover { background: #68d1a4; }
 .conversation-section { padding: 10px 9px; border-top: 1px solid var(--line-soft); }
