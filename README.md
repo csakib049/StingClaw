@@ -6,6 +6,12 @@ StingClaw is a Windows app for using named AI agents with your files and code. C
 
 **Live landing page:** [stingclaw.onrender.com](https://stingclaw.onrender.com/)
 
+## Product launch video
+
+[![Watch the StingClaw launch video](landing/media/StingClaw_launch_video-poster.jpg)](landing/media/StingClaw_launch_video.mp4)
+
+Click the poster to open the 3 minute 35 second product film.
+
 This guide describes features in the current app.
 
 ## What you can do

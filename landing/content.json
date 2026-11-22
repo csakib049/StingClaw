@@ -2,6 +2,7 @@
   "title": "StingClaw — AI agents on your computer",
   "description": "Run named AI agents on your computer. Work from a local web interface or Telegram, with permissions and proposed changes under your control.",
   "navigation": [
+    { "label": "Video", "href": "#product-video" },
     { "label": "Modes", "href": "#modes" },
     { "label": "Agents", "href": "#agents" },
     { "label": "Approvals", "href": "#approvals" },
@@ -20,6 +21,14 @@
       { "name": "Telegram", "description": "Message the same saved agents from your phone.", "action": "See how", "href": "#faq" },
       { "name": "Background service", "description": "Tasks continue while your computer and service are running.", "action": "View task flow", "href": "#task-flow" }
     ]
+  },
+  "video": {
+    "eyebrow": "THE STINGCLAW PRODUCT FILM",
+    "title": "See StingClaw in action",
+    "description": "A short tour of local agents, review controls, Telegram, and the tools that keep you in charge.",
+    "duration": "3 min 35 sec",
+    "src": "./media/StingClaw_launch_video.mp4",
+    "poster": "./media/StingClaw_launch_video-poster.jpg"
   },
   "appFrame": {
     "label": "Local",
@@ -190,7 +199,7 @@
   "footer": {
     "tagline": "AI agents on your computer.",
     "contributeUrl": "https://github.com/csakib049/StingClaw.git",
-    "product": ["Modes", "Agents", "Approvals", "FAQ"],
+    "product": ["Video", "Modes", "Agents", "Approvals", "FAQ"],
     "setup": ["Local setup", "Task flow"],
     "platform": "Windows supported today"
   }

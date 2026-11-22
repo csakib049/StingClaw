@@ -1,0 +1,2051 @@
+{
+  "ok": false,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 14,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "duplicate_media_discovery_risk",
+        "severity": "warning",
+        "message": "Detected 13 matching img entries with the same source/start/duration.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Avoid duplicated media nodes that can be discovered twice during compilation."
+      },
+      {
+        "code": "timeline_track_too_dense",
+        "severity": "warning",
+        "message": "This HTML file has 12 timed elements. Smaller sub-compositions keep timelines easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move coherent scene groups into separate .html files under compositions/ and mount them from the parent with data-composition-src so the timeline stays easier to inspect, revise, and validate."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-1\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-1",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-1\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-2\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-2",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-2\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-3\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-3",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-3\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-4\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-4",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-4\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-5\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-5",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-5\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-6\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-6",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-6\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-7\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-7",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-7\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-8\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-8",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-8\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-9\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-9",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-9\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-10\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-10",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-10\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-11\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-11",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-11\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-12\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-12",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-12\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      }
+    ],
+    "filesScanned": 1
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 2,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"music-a\" is 117.36s but its slot (data-duration) is 118.00s — the slot is shortened to the media length when rendered. Set data-duration to ~117.36s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "stingclaw-launch",
+          "data-start": "0",
+          "data-width": "1920",
+          "data-height": "1080",
+          "data-duration": "300"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      },
+      {
+        "code": "clip_media_fit",
+        "severity": "warning",
+        "message": "Audio \"music-b\" is 117.36s but its slot (data-duration) is 118.00s — the slot is shortened to the media length when rendered. Set data-duration to ~117.36s if that isn't intended.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {
+          "data-composition-id": "stingclaw-launch",
+          "data-start": "0",
+          "data-width": "1920",
+          "data-height": "1080",
+          "data-duration": "300"
+        },
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "time": 0
+      }
+    ]
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "duration": 300,
+    "samples": [
+      16.667,
+      50,
+      83.333,
+      116.667,
+      150,
+      183.333,
+      216.667,
+      250,
+      283.333
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 0,
+    "truncated": false,
+    "faceCheck": {
+      "ran": true,
+      "candidates": 0,
+      "faces": 0
+    }
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 5,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 4.02:1; WCAG AA requires 4.5:1.",
+        "text": "STINGCLAW · PRODUCT FILM",
+        "fg": "rgb(119,114,123)",
+        "bg": "rgb(17,17,20)",
+        "ratio": 4.02,
+        "requiredRatio": 4.5,
+        "suggestedColor": "rgb(127,122,131)",
+        "large": false,
+        "selector": "div > section:nth-of-type(1) > div > footer > span:nth-of-type(2)",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1548.546875,
+          "y": 989,
+          "width": 253.453125,
+          "height": 21
+        },
+        "time": 16.667,
+        "times": [
+          16.667
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 4.02:1; WCAG AA requires 4.5:1.",
+        "text": "04 — 12",
+        "fg": "rgb(119,114,123)",
+        "bg": "rgb(17,17,20)",
+        "ratio": 4.02,
+        "requiredRatio": 4.5,
+        "suggestedColor": "rgb(127,122,131)",
+        "large": false,
+        "selector": "div > section:nth-of-type(4) > div > footer > span:nth-of-type(2)",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1728.078125,
+          "y": 989,
+          "width": 73.921875,
+          "height": 21
+        },
+        "time": 83.333,
+        "times": [
+          83.333
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 4.02:1; WCAG AA requires 4.5:1.",
+        "text": "07 — 12",
+        "fg": "rgb(119,114,123)",
+        "bg": "rgb(17,17,20)",
+        "ratio": 4.02,
+        "requiredRatio": 4.5,
+        "suggestedColor": "rgb(127,122,131)",
+        "large": false,
+        "selector": "div > section:nth-of-type(7) > div > footer > span:nth-of-type(2)",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1728.078125,
+          "y": 989,
+          "width": 73.921875,
+          "height": 21
+        },
+        "time": 150,
+        "times": [
+          150
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 4.02:1; WCAG AA requires 4.5:1.",
+        "text": "09 — 12",
+        "fg": "rgb(119,114,123)",
+        "bg": "rgb(17,17,20)",
+        "ratio": 4.02,
+        "requiredRatio": 4.5,
+        "suggestedColor": "rgb(127,122,131)",
+        "large": false,
+        "selector": "div > section:nth-of-type(9) > div > footer > span:nth-of-type(2)",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1728.078125,
+          "y": 989,
+          "width": 73.921875,
+          "height": 21
+        },
+        "time": 216.667,
+        "times": [
+          216.667
+        ]
+      },
+      {
+        "code": "contrast_aa_failure",
+        "severity": "warning",
+        "message": "Contrast is 4.02:1; WCAG AA requires 4.5:1.",
+        "text": "END OF FILM · 05:00",
+        "fg": "rgb(119,114,123)",
+        "bg": "rgb(17,17,20)",
+        "ratio": 4.02,
+        "requiredRatio": 4.5,
+        "suggestedColor": "rgb(127,122,131)",
+        "large": false,
+        "selector": "div > section:nth-of-type(12) > div > footer > span:nth-of-type(2)",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1601.359375,
+          "y": 989,
+          "width": 200.640625,
+          "height": 21
+        },
+        "time": 283.333,
+        "times": [
+          283.333
+        ]
+      }
+    ],
+    "enabled": true,
+    "samples": [
+      16.667,
+      83.333,
+      150,
+      216.667,
+      283.333
+    ],
+    "checked": 77,
+    "passed": 72
+  },
+  "craft": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 12,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 15.53 s (28.55–44.07 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 28.548,
+        "seconds": 15.525,
+        "floorSeconds": 3,
+        "until": 44.073
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 15.53 s (51.59–67.11 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 51.586,
+        "seconds": 15.526,
+        "floorSeconds": 3,
+        "until": 67.112
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 16.03 s (75.13–91.15 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 75.125,
+        "seconds": 16.027,
+        "floorSeconds": 3,
+        "until": 91.152
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 14.02 s (105.17–119.20 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 105.175,
+        "seconds": 14.024,
+        "floorSeconds": 3,
+        "until": 119.199
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 14.02 s (133.22–147.25 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 133.222,
+        "seconds": 14.023,
+        "floorSeconds": 3,
+        "until": 147.245
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 16.53 s (160.77–177.29 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 160.768,
+        "seconds": 16.527,
+        "floorSeconds": 3,
+        "until": 177.295
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 14.52 s (184.81–199.33 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 184.808,
+        "seconds": 14.524,
+        "floorSeconds": 3,
+        "until": 199.332
+      },
+      {
+        "code": "text_below_floor",
+        "severity": "warning",
+        "message": "Type floor is 28 px (2.6% of the 1080 px short side, what a phone can read) and 159 text elements stay under it for 0.5 s or more, the smallest \"StingClaw bot\" at 10 px: set reading text to at least 28 px, or put data-layout-ignore on text that is texture rather than reading; see references/look.md.",
+        "text": "StingClaw bot",
+        "selector": "div.phone > div:nth-of-type(3) > span:nth-of-type(1)",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1307.24,
+          "y": 401.98,
+          "width": 77.22,
+          "height": 12.87
+        },
+        "time": 200.835,
+        "times": [
+          0,
+          0,
+          0,
+          1.002,
+          1.002,
+          1.002,
+          1.503,
+          1.503,
+          22.037,
+          22.037,
+          22.037,
+          22.538,
+          22.538,
+          22.538,
+          23.539,
+          23.539,
+          45.075,
+          45.075,
+          45.075,
+          46.077,
+          46.077,
+          46.077,
+          46.077,
+          46.077,
+          46.077,
+          46.077,
+          46.077,
+          46.578,
+          46.578,
+          68.114,
+          68.114,
+          68.114,
+          68.614,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.616,
+          69.616,
+          92.154,
+          92.154,
+          92.154,
+          92.654,
+          92.654,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.155,
+          93.656,
+          93.656,
+          120.2,
+          120.2,
+          120.2,
+          121.202,
+          121.202,
+          121.202,
+          121.202,
+          121.202,
+          121.202,
+          121.202,
+          121.202,
+          148.247,
+          148.247,
+          148.247,
+          148.748,
+          148.748,
+          148.748,
+          148.748,
+          148.748,
+          148.748,
+          148.748,
+          148.748,
+          149.249,
+          149.249,
+          178.297,
+          178.297,
+          178.297,
+          178.798,
+          178.798,
+          178.798,
+          178.798,
+          178.798,
+          178.798,
+          179.299,
+          179.299,
+          200.334,
+          200.334,
+          200.334,
+          200.835,
+          200.835,
+          200.835,
+          200.835,
+          200.835,
+          200.835,
+          200.835,
+          200.835,
+          200.835,
+          200.835,
+          201.336,
+          201.336,
+          226.377,
+          226.377,
+          226.377,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          227.379,
+          227.379,
+          256.427,
+          256.427,
+          256.427,
+          256.427,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          257.429,
+          257.429,
+          280.467,
+          280.467,
+          280.467,
+          280.467,
+          280.968,
+          281.469,
+          281.469
+        ],
+        "fontPx": 9.9,
+        "floorPx": 28,
+        "seconds": 25.042,
+        "elements": [
+          {
+            "selector": "div.phone > div:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "StingClaw bot",
+            "fontPx": 9.9,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "div.phone > div:nth-of-type(6) > span:nth-of-type(1)",
+            "text": "Task update",
+            "fontPx": 9.9,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "div.phone > div:nth-of-type(7) > span:nth-of-type(1)",
+            "text": "Review needed",
+            "fontPx": 9.9,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "div.phone-status > span:nth-of-type(1)",
+            "text": "StingClaw",
+            "fontPx": 10.89,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "div.agent.selected > span:nth-of-type(2) > small:nth-of-type(1)",
+            "text": "General purpose",
+            "fontPx": 10.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "aside.sidebar > div:nth-of-type(4) > span:nth-of-type(2) > small:nth-of-type(1)",
+            "text": "Read-only research",
+            "fontPx": 10.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "aside.sidebar > div:nth-of-type(5) > span:nth-of-type(2) > small:nth-of-type(1)",
+            "text": "Draft and revise",
+            "fontPx": 10.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "p.side-label",
+            "text": "Your agents",
+            "fontPx": 11.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.review > span:nth-of-type(2) > small:nth-of-type(1)",
+            "text": "Files · shell · web access",
+            "fontPx": 12.47,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.phone > div:nth-of-type(3)",
+            "text": "Choose an agent to chat with:",
+            "fontPx": 12.87,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "div.phone > div:nth-of-type(4)",
+            "text": "✓ Reznov",
+            "fontPx": 12.87,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "div.msg.out",
+            "text": "Review the setup notes for my project.",
+            "fontPx": 12.87,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "div.phone > div:nth-of-type(6)",
+            "text": "Researching the workspace…",
+            "fontPx": 12.87,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "div.phone > div:nth-of-type(7)",
+            "text": "1 proposed change · View diff · Approve · Reject",
+            "fontPx": 12.87,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "div.flow-node.local-node > small:nth-of-type(1)",
+            "text": "Local SQLite · app · background serviceSaved keys encrypted with Windows user-level encryption",
+            "fontPx": 13.89,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(2) > small:nth-of-type(1)",
+            "text": "Receives prompts for your selected model",
+            "fontPx": 13.89,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(3) > small:nth-of-type(1)",
+            "text": "Optional public web search when enabled",
+            "fontPx": 13.89,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(4) > small:nth-of-type(1)",
+            "text": "Messages and updates when connected",
+            "fontPx": 13.89,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.search",
+            "text": "⌕ Search agents",
+            "fontPx": 13.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.agent.selected > span:nth-of-type(1)",
+            "text": "R",
+            "fontPx": 13.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.agent.selected > span:nth-of-type(2)",
+            "text": "Reznov",
+            "fontPx": 13.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "aside.sidebar > div:nth-of-type(4) > span:nth-of-type(1)",
+            "text": "R",
+            "fontPx": 13.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "aside.sidebar > div:nth-of-type(4) > span:nth-of-type(2)",
+            "text": "Research",
+            "fontPx": 13.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "aside.sidebar > div:nth-of-type(5) > span:nth-of-type(1)",
+            "text": "W",
+            "fontPx": 13.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "aside.sidebar > div:nth-of-type(5) > span:nth-of-type(2)",
+            "text": "Writing",
+            "fontPx": 13.97,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Ask up to three saved agents for read-only research.",
+            "fontPx": 14.81,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "Read supported SKILL.md instructions.",
+            "fontPx": 14.81,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "Public web search uses Firecrawl when a key is configured and the agent is allowed to browse.",
+            "fontPx": 14.81,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Save or remove a useful fact for an agent.",
+            "fontPx": 14.87,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "Friday · 09:00 · Asia/Dhaka · Agent permissions apply",
+            "fontPx": 14.87,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "Completed · Today at 09:00",
+            "fontPx": 14.87,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(4) > span:nth-of-type(1)",
+            "text": "Keep StingClaw running while signed in.",
+            "fontPx": 14.87,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Explore a codebase. Review a proposed edit.",
+            "fontPx": 14.95,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "Choose models, keys, and permissions.",
+            "fontPx": 14.95,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "Keep conversations separate by agent.",
+            "fontPx": 14.95,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(4) > span:nth-of-type(1)",
+            "text": "Schedule work and inspect each run.",
+            "fontPx": 14.95,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "div.chat-head > span:nth-of-type(1)",
+            "text": "R",
+            "fontPx": 14.96,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.chat-head > strong:nth-of-type(1)",
+            "text": "Reznov",
+            "fontPx": 14.96,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.chat-head > span:nth-of-type(2)",
+            "text": "Settings · Model · Keys",
+            "fontPx": 14.96,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.chat-body > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "General project helper",
+            "fontPx": 14.96,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.chat-body > div:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "Primary key → fallback key",
+            "fontPx": 14.96,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.review > span:nth-of-type(2)",
+            "text": "Agent permissions",
+            "fontPx": 14.96,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Read and search files. Answer questions. No shell commands or edits to existing files.",
+            "fontPx": 14.98,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "Research with read-only tools. Return up to 15 steps for you to choose.",
+            "fontPx": 14.98,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "Use enabled tools. Stage file and shell changes so you can review them.",
+            "fontPx": 14.98,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.diff-top > span:nth-of-type(1)",
+            "text": "src/scheduler.ts",
+            "fontPx": 15.77,
+            "time": 148.748,
+            "seconds": 29.549
+          },
+          {
+            "selector": "div.diff-top > span:nth-of-type(2)",
+            "text": "Waiting for your review",
+            "fontPx": 15.77,
+            "time": 148.748,
+            "seconds": 29.549
+          },
+          {
+            "selector": "span.yes",
+            "text": "✓ Approve change",
+            "fontPx": 15.77,
+            "time": 148.748,
+            "seconds": 29.549
+          },
+          {
+            "selector": "span.no",
+            "text": "× Reject proposal",
+            "fontPx": 15.77,
+            "time": 148.748,
+            "seconds": 29.549
+          },
+          {
+            "selector": "p.small-note",
+            "text": "Background jobs run only while the computer and service are on.",
+            "fontPx": 15.88,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.device-head > span:nth-of-type(2)",
+            "text": "Local workspace · Agents",
+            "fontPx": 15.96,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.local",
+            "text": "Local",
+            "fontPx": 15.96,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "AI agents that run on your computer.",
+            "fontPx": 16,
+            "time": 1.503,
+            "seconds": 20.534
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "STINGCLAW · PRODUCT FILM",
+            "fontPx": 16,
+            "time": 1.503,
+            "seconds": 20.534
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Web · Telegram · Background service",
+            "fontPx": 16,
+            "time": 23.539,
+            "seconds": 21.536
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "02 — 12",
+            "fontPx": 16,
+            "time": 23.539,
+            "seconds": 21.536
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Purpose · model · keys · permissions",
+            "fontPx": 16,
+            "time": 46.578,
+            "seconds": 21.536
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "03 — 12",
+            "fontPx": 16,
+            "time": 46.578,
+            "seconds": 21.536
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Bun · Git · OpenRouter API key",
+            "fontPx": 16,
+            "time": 69.616,
+            "seconds": 22.538
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "04 — 12",
+            "fontPx": 16,
+            "time": 69.616,
+            "seconds": 22.538
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Choose what each agent can access",
+            "fontPx": 16,
+            "time": 93.656,
+            "seconds": 26.544
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "05 — 12",
+            "fontPx": 16,
+            "time": 93.656,
+            "seconds": 26.544
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Read-only → plan → enabled tools",
+            "fontPx": 16,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "06 — 12",
+            "fontPx": 16,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-7 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Review proposed file and shell changes",
+            "fontPx": 16,
+            "time": 149.249,
+            "seconds": 29.048
+          },
+          {
+            "selector": "#scene-7 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "07 — 12",
+            "fontPx": 16,
+            "time": 149.249,
+            "seconds": 29.048
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Optional, configured tools",
+            "fontPx": 16,
+            "time": 179.299,
+            "seconds": 20.534
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "08 — 12",
+            "fontPx": 16,
+            "time": 179.299,
+            "seconds": 20.534
+          },
+          {
+            "selector": "#scene-9 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Pair once · send tasks · review updates",
+            "fontPx": 16,
+            "time": 201.336,
+            "seconds": 24.541
+          },
+          {
+            "selector": "#scene-9 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "09 — 12",
+            "fontPx": 16,
+            "time": 201.336,
+            "seconds": 24.541
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Computer must remain on for background tasks",
+            "fontPx": 16,
+            "time": 227.379,
+            "seconds": 28.548
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "10 — 12",
+            "fontPx": 16,
+            "time": 227.379,
+            "seconds": 28.548
+          },
+          {
+            "selector": "#scene-11 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Local-first, with provider connections clearly named",
+            "fontPx": 16,
+            "time": 257.429,
+            "seconds": 22.538
+          },
+          {
+            "selector": "#scene-11 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "11 — 12",
+            "fontPx": 16,
+            "time": 257.429,
+            "seconds": 22.538
+          },
+          {
+            "selector": "#scene-12 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "STINGCLAW",
+            "fontPx": 16,
+            "time": 281.469,
+            "seconds": 18.531
+          },
+          {
+            "selector": "#scene-12 > div:nth-of-type(1) > footer:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "END OF FILM · 05:00",
+            "fontPx": 16,
+            "time": 281.469,
+            "seconds": 18.531
+          },
+          {
+            "selector": "div.diff-lines > div:nth-of-type(1)",
+            "text": "const interval = 60_000;",
+            "fontPx": 17.74,
+            "time": 148.748,
+            "seconds": 29.549
+          },
+          {
+            "selector": "div.del",
+            "text": "− const interval = 60_000;",
+            "fontPx": 17.74,
+            "time": 148.748,
+            "seconds": 29.549
+          },
+          {
+            "selector": "div.add",
+            "text": "+ const interval = 15_000;",
+            "fontPx": 17.74,
+            "time": 148.748,
+            "seconds": 29.549
+          },
+          {
+            "selector": "div.diff-lines > div:nth-of-type(4)",
+            "text": "startScheduledJobRunner(interval);",
+            "fontPx": 17.74,
+            "time": 148.748,
+            "seconds": 29.549
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "LOCAL WEB APP",
+            "fontPx": 18,
+            "time": 22.538,
+            "seconds": 22.537
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "TELEGRAM",
+            "fontPx": 18,
+            "time": 22.538,
+            "seconds": 22.537
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(3)",
+            "text": "BACKGROUND SERVICE",
+            "fontPx": 18,
+            "time": 22.538,
+            "seconds": 22.537
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "ADD YOUR OPENROUTER KEY IN SETTINGS",
+            "fontPx": 18,
+            "time": 68.614,
+            "seconds": 23.54
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "SEPARATE CHATS",
+            "fontPx": 18,
+            "time": 92.654,
+            "seconds": 27.546
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "PER-AGENT SETTINGS",
+            "fontPx": 18,
+            "time": 92.654,
+            "seconds": 27.546
+          },
+          {
+            "selector": "#scene-9 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "COMPUTER + SERVICE MUST BE RUNNING",
+            "fontPx": 18,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "MISSED RUNS ARE SKIPPED AND RECORDED",
+            "fontPx": 18,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-11 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "WINDOWS SUPPORTED TODAY",
+            "fontPx": 18,
+            "time": 256.427,
+            "seconds": 23.54
+          },
+          {
+            "selector": "div.url",
+            "text": "stingclaw.onrender.comgithub.com/csakib049/StingClaw",
+            "fontPx": 18,
+            "time": 280.467,
+            "seconds": 19.533
+          },
+          {
+            "selector": "div.flow-node.local-node > strong:nth-of-type(1)",
+            "text": "Your computer",
+            "fontPx": 18.85,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "OpenRouter",
+            "fontPx": 18.85,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(3) > strong:nth-of-type(1)",
+            "text": "Firecrawl",
+            "fontPx": 18.85,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(4) > strong:nth-of-type(1)",
+            "text": "Telegram",
+            "fontPx": 18.85,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "Agent collaboration",
+            "fontPx": 19.75,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "Skills",
+            "fontPx": 19.75,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > strong:nth-of-type(1)",
+            "text": "Optional web search",
+            "fontPx": 19.75,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "Memory",
+            "fontPx": 19.82,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "Weekly job",
+            "fontPx": 19.82,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > strong:nth-of-type(1)",
+            "text": "Run history",
+            "fontPx": 19.82,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(4) > strong:nth-of-type(1)",
+            "text": "Background service",
+            "fontPx": 19.82,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "Developers",
+            "fontPx": 19.93,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "Technical users",
+            "fontPx": 19.93,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > strong:nth-of-type(1)",
+            "text": "Project work",
+            "fontPx": 19.93,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(4) > strong:nth-of-type(1)",
+            "text": "Repeat tasks",
+            "fontPx": 19.93,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "div.chat-body > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "Instructions",
+            "fontPx": 19.95,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "div.chat-body > div:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "API key order",
+            "fontPx": 19.95,
+            "time": 93.155,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "01 · ASK",
+            "fontPx": 19.97,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "02 · PLAN",
+            "fontPx": 19.97,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > strong:nth-of-type(1)",
+            "text": "03 · AGENT",
+            "fontPx": 19.97,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "01 / THE HOOK",
+            "fontPx": 20,
+            "time": 0,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "02 / WHAT IS STINGCLAW",
+            "fontPx": 20,
+            "time": 22.037,
+            "seconds": 23.038
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "03 / WHO IT IS FOR",
+            "fontPx": 20,
+            "time": 45.075,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "04 / GETTING STARTED",
+            "fontPx": 20,
+            "time": 68.114,
+            "seconds": 24.04
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "05 / MULTIPLE AGENTS",
+            "fontPx": 20,
+            "time": 92.154,
+            "seconds": 28.046
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "06 / THREE MODES",
+            "fontPx": 20,
+            "time": 120.2,
+            "seconds": 28.047
+          },
+          {
+            "selector": "#scene-7 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "07 / YOU STAY IN CONTROL",
+            "fontPx": 20,
+            "time": 148.247,
+            "seconds": 30.05
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "08 / POWER FEATURES",
+            "fontPx": 20,
+            "time": 178.297,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-9 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "09 / TELEGRAM",
+            "fontPx": 20,
+            "time": 200.334,
+            "seconds": 26.043
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "10 / MEMORY · SCHEDULES · BACKGROUND",
+            "fontPx": 20,
+            "time": 226.377,
+            "seconds": 30.051
+          },
+          {
+            "selector": "#scene-11 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "11 / PRIVACY AND HONESTY",
+            "fontPx": 20,
+            "time": 256.427,
+            "seconds": 24.041
+          },
+          {
+            "selector": "#scene-12 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "12 / YOUR TURN",
+            "fontPx": 20,
+            "time": 280.467,
+            "seconds": 19.533
+          },
+          {
+            "selector": "div.visual.closing > div:nth-of-type(1) > p:nth-of-type(1)",
+            "text": "MEET STINGCLAW",
+            "fontPx": 20.88,
+            "time": 280.968,
+            "seconds": 19.032
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 0,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 0,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 22.037,
+            "seconds": 23.038
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 22.037,
+            "seconds": 23.038
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 45.075,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 45.075,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 68.114,
+            "seconds": 24.04
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 68.114,
+            "seconds": 24.04
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 92.154,
+            "seconds": 28.046
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 92.154,
+            "seconds": 28.046
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 120.2,
+            "seconds": 28.047
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 120.2,
+            "seconds": 28.047
+          },
+          {
+            "selector": "#scene-7 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 148.247,
+            "seconds": 30.05
+          },
+          {
+            "selector": "#scene-7 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 148.247,
+            "seconds": 30.05
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 178.297,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 178.297,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-9 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 200.334,
+            "seconds": 26.043
+          },
+          {
+            "selector": "#scene-9 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 200.334,
+            "seconds": 26.043
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 226.377,
+            "seconds": 30.051
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 226.377,
+            "seconds": 30.051
+          },
+          {
+            "selector": "#scene-11 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 256.427,
+            "seconds": 24.041
+          },
+          {
+            "selector": "#scene-11 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 256.427,
+            "seconds": 24.041
+          },
+          {
+            "selector": "#scene-12 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 280.467,
+            "seconds": 19.533
+          },
+          {
+            "selector": "#scene-12 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 280.467,
+            "seconds": 19.533
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1)",
+            "text": "Review this project",
+            "fontPx": 21.89,
+            "time": 1.002,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2)",
+            "text": "Inspect files · prepare a change",
+            "fontPx": 21.89,
+            "time": 1.002,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(3)",
+            "text": "Waiting for your approval",
+            "fontPx": 21.89,
+            "time": 1.002,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "text": "git clone https://github.com/csakib049/StingClaw.git",
+            "fontPx": 21.94,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "$",
+            "fontPx": 21.94,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "text": "cd StingClaw",
+            "fontPx": 21.94,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "$",
+            "fontPx": 21.94,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(3)",
+            "text": "bun install",
+            "fontPx": 21.94,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "$",
+            "fontPx": 21.94,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.terminal > div:nth-of-type(4)",
+            "text": "bun run dev",
+            "fontPx": 21.94,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.terminal > div:nth-of-type(4) > span:nth-of-type(1)",
+            "text": "$",
+            "fontPx": 21.94,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(5)",
+            "text": "Open the local address shown in your terminal.",
+            "fontPx": 21.94,
+            "time": 69.115,
+            "seconds": 23.039
+          }
+        ]
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 18.03 s (207.35–225.38 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 207.346,
+        "seconds": 18.03,
+        "floorSeconds": 3,
+        "until": 225.376
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 16.03 s (239.40–255.43 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 239.399,
+        "seconds": 16.027,
+        "floorSeconds": 3,
+        "until": 255.426
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 16.03 s (263.44–279.47 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 263.439,
+        "seconds": 16.027,
+        "floorSeconds": 3,
+        "until": 279.466
+      },
+      {
+        "code": "dead_stretch",
+        "severity": "warning",
+        "message": "Nothing on screen changes for 15.03 s (281.97–297.00 s): start the next move within 3 s, or put data-hold on the element whose stillness is deliberate; see references/motion.md.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 281.97,
+        "seconds": 15.03,
+        "floorSeconds": 3,
+        "until": 297
+      }
+    ],
+    "enabled": true,
+    "step": 0.5010000000000012,
+    "samples": 599
+  },
+  "audio": {
+    "ok": false,
+    "errorCount": 3,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "audio_source_unreadable",
+        "severity": "error",
+        "message": "assets/music/music-bed.mp3 cannot be read as audio ([FFmpeg] ffprobe not found. Please install FFmpeg.), so the render's audio mix fails and the render stops.",
+        "selector": "#music-a",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "timeRange": [
+          0,
+          118
+        ],
+        "fixHint": "Point src at a file with an audio track, or re-export this one."
+      },
+      {
+        "code": "audio_source_unreadable",
+        "severity": "error",
+        "message": "assets/music/music-bed.mp3 cannot be read as audio ([FFmpeg] ffprobe not found. Please install FFmpeg.), so the render's audio mix fails and the render stops.",
+        "selector": "#music-b",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 118,
+        "timeRange": [
+          118,
+          236
+        ],
+        "fixHint": "Point src at a file with an audio track, or re-export this one."
+      },
+      {
+        "code": "audio_source_unreadable",
+        "severity": "error",
+        "message": "assets/music/music-bed.mp3 cannot be read as audio ([FFmpeg] ffprobe not found. Please install FFmpeg.), so the render's audio mix fails and the render stops.",
+        "selector": "#music-c",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 236,
+        "timeRange": [
+          236,
+          300
+        ],
+        "fixHint": "Point src at a file with an audio track, or re-export this one."
+      }
+    ]
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  }
+}

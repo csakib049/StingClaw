@@ -93,7 +93,7 @@ const html = `<!doctype html>
       <div class="hero-copy">
         <h1 id="hero-title">${e(copy.hero.headline)}</h1>
         <p class="hero-description">${e(copy.hero.description)}</p>
-        <div class="hero-actions">${link(copy.hero.primary, "#get-started", "button button-primary button-lg")}${link(copy.hero.secondary, "#modes", "button button-secondary button-lg")}</div>
+        <div class="hero-actions">${link(copy.hero.primary, "#get-started", "button button-primary button-lg")}${link(copy.hero.secondary, "#product-video", "button button-secondary button-lg")}</div>
         <div class="setup-block" id="get-started">
           <div class="setup-label">${e(copy.hero.setupLabel)}</div>
           <div class="command-block"><div class="command-lines">${copy.hero.setupCommands.map((command) => `<code><span>$</span> ${e(command)}</code>`).join("")}</div><button class="copy-button" type="button" aria-label="Copy setup commands" data-copy="${e(copy.hero.setupCommands.join("\n"))}"><span aria-hidden="true">▢</span><span class="copy-label">Copy</span></button></div>
@@ -111,6 +111,13 @@ const html = `<!doctype html>
     </section>
 
     <section class="proof-strip" aria-label="StingClaw at a glance"><div class="proof-grid section-wrap">${proof}</div></section>
+
+    <section class="section product-video-section" id="product-video" aria-labelledby="product-video-title">
+      <div class="section-wrap">
+        <div class="section-heading"><p class="film-eyebrow">${e(copy.video.eyebrow)}</p><h2 id="product-video-title">${e(copy.video.title)}</h2><p>${e(copy.video.description)}</p></div>
+        <figure class="launch-video-frame"><video controls playsinline preload="none" poster="${e(copy.video.poster)}" aria-label="StingClaw product launch video"><source src="${e(copy.video.src)}" type="video/mp4">Your browser does not support embedded video. <a href="${e(copy.video.src)}">Open the StingClaw launch video</a>.</video><figcaption>${e(copy.video.duration)} · Product overview</figcaption></figure>
+      </div>
+    </section>
 
     <section class="section section-wrap pillars-section" aria-labelledby="pillars-title">
       <div class="section-heading"><h2 id="pillars-title">${e(copy.pillars.title)}</h2><p>${e(copy.pillars.description)}</p></div>

@@ -1,0 +1,1505 @@
+{
+  "ok": true,
+  "strict": false,
+  "browserSkipped": false,
+  "lint": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 13,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "timeline_track_too_dense",
+        "severity": "warning",
+        "message": "This HTML file has 12 timed elements. Smaller sub-compositions keep timelines easier to read, iterate on, and diff.",
+        "selector": "[data-composition-id]",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move coherent scene groups into separate .html files under compositions/ and mount them from the parent with data-composition-src so the timeline stays easier to inspect, revise, and validate."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-1\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-1",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-1\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-2\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-2",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-2\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-3\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-3",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-3\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-4\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-4",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-4\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-5\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-5",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-5\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-6\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-6",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-6\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-7\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-7",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-7\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-8\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-8",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-8\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-9\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-9",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-9\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-10\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-10",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-10\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-11\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-11",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-11\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      },
+      {
+        "code": "nested_structure_needs_subcomposition",
+        "severity": "warning",
+        "message": "<section id=\"scene-12\"> is a timeline element that contains nested <div>. The timeline shows one row per top-level element, and the root composition is built only from sub-compositions.",
+        "selector": "#scene-12",
+        "dataAttributes": {},
+        "sourceFile": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\index.html",
+        "bbox": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0
+        },
+        "time": 0,
+        "fixHint": "Move <section id=\"scene-12\"> and its contents into a sub-composition file and mount it with data-composition-src."
+      }
+    ],
+    "filesScanned": 1
+  },
+  "runtime": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "layout": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 9,
+    "findings": [
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 16.667,
+        "selector": "#scene-1 > div:nth-of-type(2)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1234.95,
+          "top": 60.12,
+          "right": 2128.3,
+          "bottom": 953.47,
+          "width": 893.35,
+          "height": 893.35
+        },
+        "containerSelector": "#scene-1",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 208.3
+        },
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1234.95,
+          "y": 60.12,
+          "width": 893.35,
+          "height": 893.35
+        },
+        "firstSeen": 16.667,
+        "lastSeen": 16.667,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          16.667
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 50,
+        "selector": "#scene-3 > div:nth-of-type(2)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1227.32,
+          "top": 190.38,
+          "right": 1943.53,
+          "bottom": 906.59,
+          "width": 716.21,
+          "height": 716.21
+        },
+        "containerSelector": "#scene-3",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 23.53
+        },
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1227.32,
+          "y": 190.38,
+          "width": 716.21,
+          "height": 716.21
+        },
+        "firstSeen": 50,
+        "lastSeen": 50,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          50
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 83.333,
+        "selector": "#scene-4 > div:nth-of-type(2)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1233.41,
+          "top": 86.37,
+          "right": 2091.06,
+          "bottom": 944.02,
+          "width": 857.65,
+          "height": 857.65
+        },
+        "containerSelector": "#scene-4",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 171.06
+        },
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1233.41,
+          "y": 86.37,
+          "width": 857.65,
+          "height": 857.65
+        },
+        "firstSeen": 83.333,
+        "lastSeen": 83.333,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          83.333
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 116.667,
+        "selector": "#scene-5 > div:nth-of-type(2)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1235.8,
+          "top": 45.19,
+          "right": 2149.46,
+          "bottom": 958.86,
+          "width": 913.67,
+          "height": 913.67
+        },
+        "containerSelector": "#scene-5",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 229.46
+        },
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1235.8,
+          "y": 45.19,
+          "width": 913.67,
+          "height": 913.67
+        },
+        "firstSeen": 116.667,
+        "lastSeen": 116.667,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          116.667
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 150,
+        "selector": "#scene-7 > div:nth-of-type(2)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1226.54,
+          "top": 204,
+          "right": 1924.22,
+          "bottom": 901.68,
+          "width": 697.68,
+          "height": 697.68
+        },
+        "containerSelector": "#scene-7",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 4.22
+        },
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1226.54,
+          "y": 204,
+          "width": 697.68,
+          "height": 697.68
+        },
+        "firstSeen": 150,
+        "lastSeen": 150,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          150
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 183.333,
+        "selector": "#scene-8 > div:nth-of-type(2)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1227.56,
+          "top": 186.68,
+          "right": 1948.79,
+          "bottom": 907.9,
+          "width": 721.22,
+          "height": 721.22
+        },
+        "containerSelector": "#scene-8",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 28.79
+        },
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1227.56,
+          "y": 186.68,
+          "width": 721.22,
+          "height": 721.22
+        },
+        "firstSeen": 183.333,
+        "lastSeen": 183.333,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          183.333
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 216.667,
+        "selector": "#scene-9 > div:nth-of-type(2)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1233.45,
+          "top": 85.74,
+          "right": 2091.95,
+          "bottom": 944.24,
+          "width": 858.5,
+          "height": 858.5
+        },
+        "containerSelector": "#scene-9",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 171.95
+        },
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1233.45,
+          "y": 85.74,
+          "width": 858.5,
+          "height": 858.5
+        },
+        "firstSeen": 216.667,
+        "lastSeen": 216.667,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          216.667
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 250,
+        "selector": "#scene-10 > div:nth-of-type(2)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1235.26,
+          "top": 54.44,
+          "right": 2136.35,
+          "bottom": 955.53,
+          "width": 901.08,
+          "height": 901.08
+        },
+        "containerSelector": "#scene-10",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 216.35
+        },
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1235.26,
+          "y": 54.44,
+          "width": 901.08,
+          "height": 901.08
+        },
+        "firstSeen": 250,
+        "lastSeen": 250,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          250
+        ]
+      },
+      {
+        "code": "container_overflow",
+        "severity": "info",
+        "time": 283.333,
+        "selector": "#scene-12 > div:nth-of-type(2)",
+        "message": "Element extends outside a clipping layout container.",
+        "rect": {
+          "left": 1226.89,
+          "top": 198.06,
+          "right": 1932.65,
+          "bottom": 903.81,
+          "width": 705.76,
+          "height": 705.76
+        },
+        "containerSelector": "#scene-12",
+        "fixHint": "Resize/reposition the child or container, or mark intentional overflow with data-layout-allow-overflow.",
+        "containerRect": {
+          "left": 0,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "width": 1920,
+          "height": 1080
+        },
+        "overflow": {
+          "right": 12.65
+        },
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 1226.89,
+          "y": 198.06,
+          "width": 705.76,
+          "height": 705.76
+        },
+        "firstSeen": 283.333,
+        "lastSeen": 283.333,
+        "occurrences": 1,
+        "heldMs": 0,
+        "times": [
+          283.333
+        ]
+      }
+    ],
+    "duration": 300,
+    "samples": [
+      16.667,
+      50,
+      83.333,
+      116.667,
+      150,
+      183.333,
+      216.667,
+      250,
+      283.333
+    ],
+    "transitionSamples": [],
+    "transitionSamplesDropped": 0,
+    "tolerance": 2,
+    "totalIssueCount": 9,
+    "truncated": false,
+    "faceCheck": {
+      "ran": true,
+      "candidates": 0,
+      "faces": 0
+    }
+  },
+  "motion": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": false,
+    "samples": 0
+  },
+  "contrast": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": [],
+    "enabled": true,
+    "samples": [
+      16.667,
+      83.333,
+      150,
+      216.667,
+      283.333
+    ],
+    "checked": 49,
+    "passed": 49
+  },
+  "craft": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 1,
+    "infoCount": 0,
+    "findings": [
+      {
+        "code": "text_below_floor",
+        "severity": "warning",
+        "message": "Type floor is 28 px (2.6% of the 1080 px short side, what a phone can read) and 96 text elements stay under it for 0.5 s or more, the smallest \"stingclaw.onrender.comgithub.com/csak...\" at 18 px: set reading text to at least 28 px, or put data-layout-ignore on text that is texture rather than reading; see references/look.md.",
+        "text": "stingclaw.onrender.comgithub.com/csakib049/StingClaw",
+        "selector": "div.url",
+        "dataAttributes": {},
+        "sourceFile": "index.html",
+        "bbox": {
+          "x": 99.39,
+          "y": 711.69,
+          "width": 324,
+          "height": 46
+        },
+        "time": 280.467,
+        "times": [
+          0,
+          0,
+          0,
+          1.002,
+          1.002,
+          1.002,
+          22.037,
+          22.037,
+          22.037,
+          22.538,
+          22.538,
+          22.538,
+          45.075,
+          45.075,
+          45.075,
+          46.077,
+          46.077,
+          46.077,
+          46.077,
+          46.077,
+          46.077,
+          46.077,
+          46.077,
+          68.114,
+          68.114,
+          68.114,
+          68.614,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          69.115,
+          92.154,
+          92.154,
+          92.154,
+          92.654,
+          92.654,
+          120.2,
+          120.2,
+          120.2,
+          121.202,
+          121.202,
+          121.202,
+          121.202,
+          121.202,
+          121.202,
+          148.247,
+          148.247,
+          148.247,
+          178.297,
+          178.297,
+          178.297,
+          178.798,
+          178.798,
+          178.798,
+          178.798,
+          178.798,
+          178.798,
+          200.334,
+          200.334,
+          200.334,
+          200.835,
+          226.377,
+          226.377,
+          226.377,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          226.878,
+          256.427,
+          256.427,
+          256.427,
+          256.427,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          256.928,
+          280.467,
+          280.467,
+          280.467,
+          280.467,
+          280.968
+        ],
+        "fontPx": 18,
+        "floorPx": 28,
+        "seconds": 19.533,
+        "elements": [
+          {
+            "selector": "div.url",
+            "text": "stingclaw.onrender.comgithub.com/csakib049/StingClaw",
+            "fontPx": 18,
+            "time": 280.467,
+            "seconds": 19.533
+          },
+          {
+            "selector": "div.flow-node.local-node > small:nth-of-type(1)",
+            "text": "Local SQLite · app · background serviceSaved keys encrypted with Windows user-level encryption",
+            "fontPx": 19.85,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(2) > small:nth-of-type(1)",
+            "text": "Receives prompts for your selected model",
+            "fontPx": 19.85,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(3) > small:nth-of-type(1)",
+            "text": "Optional public web search when enabled",
+            "fontPx": 19.85,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(4) > small:nth-of-type(1)",
+            "text": "Messages and updates when connected",
+            "fontPx": 19.85,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "01 / THE HOOK",
+            "fontPx": 20,
+            "time": 0,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "02 / WHAT IS STINGCLAW",
+            "fontPx": 20,
+            "time": 22.037,
+            "seconds": 23.038
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "LOCAL WEB APP",
+            "fontPx": 20,
+            "time": 22.538,
+            "seconds": 22.537
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "TELEGRAM",
+            "fontPx": 20,
+            "time": 22.538,
+            "seconds": 22.537
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(3)",
+            "text": "BACKGROUND SERVICE",
+            "fontPx": 20,
+            "time": 22.538,
+            "seconds": 22.537
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "03 / WHO IT IS FOR",
+            "fontPx": 20,
+            "time": 45.075,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "04 / GETTING STARTED",
+            "fontPx": 20,
+            "time": 68.114,
+            "seconds": 24.04
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "ADD YOUR OPENROUTER KEY IN SETTINGS",
+            "fontPx": 20,
+            "time": 68.614,
+            "seconds": 23.54
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "05 / MULTIPLE AGENTS",
+            "fontPx": 20,
+            "time": 92.154,
+            "seconds": 28.046
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "SEPARATE CHATS",
+            "fontPx": 20,
+            "time": 92.654,
+            "seconds": 27.546
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(2)",
+            "text": "PER-AGENT SETTINGS",
+            "fontPx": 20,
+            "time": 92.654,
+            "seconds": 27.546
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "06 / THREE MODES",
+            "fontPx": 20,
+            "time": 120.2,
+            "seconds": 28.047
+          },
+          {
+            "selector": "#scene-7 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "07 / YOU STAY IN CONTROL",
+            "fontPx": 20,
+            "time": 148.247,
+            "seconds": 30.05
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "08 / POWER FEATURES",
+            "fontPx": 20,
+            "time": 178.297,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-9 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "09 / TELEGRAM",
+            "fontPx": 20,
+            "time": 200.334,
+            "seconds": 26.043
+          },
+          {
+            "selector": "#scene-9 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "COMPUTER + SERVICE MUST BE RUNNING",
+            "fontPx": 20,
+            "time": 200.835,
+            "seconds": 25.042
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "10 / MEMORY · SCHEDULES · BACKGROUND",
+            "fontPx": 20,
+            "time": 226.377,
+            "seconds": 30.051
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "MISSED RUNS ARE SKIPPED AND RECORDED",
+            "fontPx": 20,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-11 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "11 / PRIVACY AND HONESTY",
+            "fontPx": 20,
+            "time": 256.427,
+            "seconds": 24.041
+          },
+          {
+            "selector": "#scene-11 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "WINDOWS SUPPORTED TODAY",
+            "fontPx": 20,
+            "time": 256.427,
+            "seconds": 23.54
+          },
+          {
+            "selector": "#scene-12 > div:nth-of-type(1) > header:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "12 / YOUR TURN",
+            "fontPx": 20,
+            "time": 280.467,
+            "seconds": 19.533
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Ask up to three saved agents for read-only research.",
+            "fontPx": 20.73,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "Read supported SKILL.md instructions.",
+            "fontPx": 20.73,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "Public web search uses Firecrawl when a key is configured and the agent is allowed to browse.",
+            "fontPx": 20.73,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Save or remove a useful fact for an agent.",
+            "fontPx": 20.82,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "Friday · 09:00 · Asia/Dhaka · Agent permissions apply",
+            "fontPx": 20.82,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "Completed · Today at 09:00",
+            "fontPx": 20.82,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(4) > span:nth-of-type(1)",
+            "text": "Keep StingClaw running while signed in.",
+            "fontPx": 20.82,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "div.visual.closing > div:nth-of-type(1) > p:nth-of-type(1)",
+            "text": "MEET STINGCLAW",
+            "fontPx": 20.88,
+            "time": 280.968,
+            "seconds": 19.032
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Explore a codebase. Review a proposed edit.",
+            "fontPx": 20.93,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "Choose models, keys, and permissions.",
+            "fontPx": 20.93,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "Keep conversations separate by agent.",
+            "fontPx": 20.93,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(4) > span:nth-of-type(1)",
+            "text": "Schedule work and inspect each run.",
+            "fontPx": 20.93,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "Read and search files. Answer questions. No shell commands or edits to existing files.",
+            "fontPx": 20.97,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "Research with read-only tools. Return up to 15 steps for you to choose.",
+            "fontPx": 20.97,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "Use enabled tools. Stage file and shell changes so you can review them.",
+            "fontPx": 20.97,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 0,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 0,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 22.037,
+            "seconds": 23.038
+          },
+          {
+            "selector": "#scene-2 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 22.037,
+            "seconds": 23.038
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 45.075,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 45.075,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 68.114,
+            "seconds": 24.04
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 68.114,
+            "seconds": 24.04
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 92.154,
+            "seconds": 28.046
+          },
+          {
+            "selector": "#scene-5 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 92.154,
+            "seconds": 28.046
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 120.2,
+            "seconds": 28.047
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 120.2,
+            "seconds": 28.047
+          },
+          {
+            "selector": "#scene-7 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 148.247,
+            "seconds": 30.05
+          },
+          {
+            "selector": "#scene-7 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 148.247,
+            "seconds": 30.05
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 178.297,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 178.297,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-9 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 200.334,
+            "seconds": 26.043
+          },
+          {
+            "selector": "#scene-9 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 200.334,
+            "seconds": 26.043
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 226.377,
+            "seconds": 30.051
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 226.377,
+            "seconds": 30.051
+          },
+          {
+            "selector": "#scene-11 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 256.427,
+            "seconds": 24.041
+          },
+          {
+            "selector": "#scene-11 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 256.427,
+            "seconds": 24.041
+          },
+          {
+            "selector": "#scene-12 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "STING",
+            "fontPx": 21,
+            "time": 280.467,
+            "seconds": 19.533
+          },
+          {
+            "selector": "#scene-12 > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > strong:nth-of-type(1) > em:nth-of-type(1)",
+            "text": "CLAW",
+            "fontPx": 21,
+            "time": 280.467,
+            "seconds": 19.533
+          },
+          {
+            "selector": "p.small-note",
+            "text": "Background jobs run only while the computer and service are on.",
+            "fontPx": 21.83,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1)",
+            "text": "Review this project",
+            "fontPx": 23.88,
+            "time": 1.002,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2)",
+            "text": "Inspect files · prepare a change",
+            "fontPx": 23.88,
+            "time": 1.002,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-1 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(3)",
+            "text": "Waiting for your approval",
+            "fontPx": 23.88,
+            "time": 1.002,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1)",
+            "text": "git clone https://github.com/csakib049/StingClaw.git",
+            "fontPx": 23.93,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > span:nth-of-type(1)",
+            "text": "$",
+            "fontPx": 23.93,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2)",
+            "text": "cd StingClaw",
+            "fontPx": 23.93,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > span:nth-of-type(1)",
+            "text": "$",
+            "fontPx": 23.93,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(3)",
+            "text": "bun install",
+            "fontPx": 23.93,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(3) > span:nth-of-type(1)",
+            "text": "$",
+            "fontPx": 23.93,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.terminal > div:nth-of-type(4)",
+            "text": "bun run dev",
+            "fontPx": 23.93,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.terminal > div:nth-of-type(4) > span:nth-of-type(1)",
+            "text": "$",
+            "fontPx": 23.93,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-4 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(5)",
+            "text": "Open the local address shown in your terminal.",
+            "fontPx": 23.93,
+            "time": 69.115,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "Agent collaboration",
+            "fontPx": 24.68,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "Skills",
+            "fontPx": 24.68,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-8 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > strong:nth-of-type(1)",
+            "text": "Optional web search",
+            "fontPx": 24.68,
+            "time": 178.798,
+            "seconds": 21.035
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "Memory",
+            "fontPx": 24.78,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "Weekly job",
+            "fontPx": 24.78,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > strong:nth-of-type(1)",
+            "text": "Run history",
+            "fontPx": 24.78,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "#scene-10 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(4) > strong:nth-of-type(1)",
+            "text": "Background service",
+            "fontPx": 24.78,
+            "time": 226.878,
+            "seconds": 29.049
+          },
+          {
+            "selector": "div.flow-node.local-node > strong:nth-of-type(1)",
+            "text": "Your computer",
+            "fontPx": 24.81,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "OpenRouter",
+            "fontPx": 24.81,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(3) > strong:nth-of-type(1)",
+            "text": "Firecrawl",
+            "fontPx": 24.81,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "div.data-flow > div:nth-of-type(4) > strong:nth-of-type(1)",
+            "text": "Telegram",
+            "fontPx": 24.81,
+            "time": 256.928,
+            "seconds": 23.039
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "Developers",
+            "fontPx": 24.91,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "Technical users",
+            "fontPx": 24.91,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > strong:nth-of-type(1)",
+            "text": "Project work",
+            "fontPx": 24.91,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-3 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(4) > strong:nth-of-type(1)",
+            "text": "Repeat tasks",
+            "fontPx": 24.91,
+            "time": 46.077,
+            "seconds": 22.037
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(1) > strong:nth-of-type(1)",
+            "text": "01 · ASK",
+            "fontPx": 24.96,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(2) > strong:nth-of-type(1)",
+            "text": "02 · PLAN",
+            "fontPx": 24.96,
+            "time": 121.202,
+            "seconds": 27.045
+          },
+          {
+            "selector": "#scene-6 > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > article:nth-of-type(3) > strong:nth-of-type(1)",
+            "text": "03 · AGENT",
+            "fontPx": 24.96,
+            "time": 121.202,
+            "seconds": 27.045
+          }
+        ]
+      }
+    ],
+    "enabled": true,
+    "step": 0.5010000000000012,
+    "samples": 599
+  },
+  "audio": {
+    "ok": true,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 0,
+    "findings": []
+  },
+  "hdr": {
+    "autoPromotion": null,
+    "inspection": "available"
+  },
+  "snapshots": {
+    "enabled": false,
+    "files": [],
+    "times": [],
+    "findingFiles": []
+  },
+  "saved": {
+    "id": "74cf6e85-fef2-460a-a9b0-a533d32dac4a",
+    "revision": "329dc9e9-b353-4a6a-bf31-655bec9256cf",
+    "report": "D:\\StingClaw\\brag-output-2026-11-22-153000\\composition\\.hyperframes\\artifacts\\checks\\74cf6e85-fef2-460a-a9b0-a533d32dac4a.json",
+    "attribution": "recorded-revision"
+  },
+  "_meta": {
+    "version": "0.9.80",
+    "latestVersion": "0.9.80",
+    "updateAvailable": false,
+    "checkedAt": "2026-11-22T10:50:40.989Z",
+    "skillsOutdated": 4,
+    "skillsMissing": 2
+  }
+}
