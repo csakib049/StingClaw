@@ -4,6 +4,8 @@
 
 StingClaw is a Windows app for using named AI agents with your files and code. Chat from the local web app or Telegram, choose what each agent can do, and review file or command changes before they are applied.
 
+**Live landing page:** [stingclaw.onrender.com](https://stingclaw.onrender.com/)
+
 This guide describes features in the current app.
 
 ## What you can do

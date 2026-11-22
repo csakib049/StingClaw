@@ -12,9 +12,9 @@
     "description": "Create named agents, chat from a local web interface or Telegram, and review proposed changes before they reach your files.",
     "primary": "Set up StingClaw",
     "secondary": "See how it works",
-    "setupLabel": "Start from a StingClaw checkout",
-    "setupCommands": ["bun install", "bun run dev"],
-    "setupNote": "Bun is required. Add your OpenRouter API key in local Settings.",
+    "setupLabel": "Windows quick start · install Bun first",
+    "setupCommands": ["git clone https://github.com/csakib049/StingClaw.git", "cd StingClaw", "bun install", "bun run dev"],
+    "setupNote": "Then open the local app shown in your terminal and add an OpenRouter API key in Settings.",
     "surfaceRows": [
       { "name": "Web app", "description": "Chat with your agents in a local browser interface.", "action": "Explore modes", "href": "#modes" },
       { "name": "Telegram", "description": "Message the same saved agents from your phone.", "action": "See how", "href": "#faq" },
@@ -189,6 +189,7 @@
   },
   "footer": {
     "tagline": "AI agents on your computer.",
+    "contributeUrl": "https://github.com/csakib049/StingClaw.git",
     "product": ["Modes", "Agents", "Approvals", "FAQ"],
     "setup": ["Local setup", "Task flow"],
     "platform": "Windows supported today"
