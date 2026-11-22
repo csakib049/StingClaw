@@ -10,7 +10,8 @@
     "typecheck": "bun check",
     "dev": "bun run index.ts web",
     "backend": "bun run index.ts backend",
-    "landing:build": "bun run landing/build.mjs"
+    "landing:build": "bun run landing/build.mjs",
+    "landing:dev": "bun run landing/server.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.4.4",

@@ -11,7 +11,7 @@ bun run landing:build
 To preview it locally from the repository root:
 
 ```powershell
-python -m http.server 4173 --directory landing
+bun run landing:dev
 ```
 
-Then open `http://127.0.0.1:4173`. The page does not need the StingClaw app server or additional packages.
+Then open `http://127.0.0.1:4173`. Running `bun run dev` also starts this landing page alongside the local StingClaw app.

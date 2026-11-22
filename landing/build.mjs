@@ -63,23 +63,25 @@ const html = `<!doctype html>
   <meta name="theme-color" content="#111114">
   <meta name="description" content="${e(copy.description)}">
   <title>${e(copy.title)}</title>
-  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="./assets/stingclaw-mark.png" type="image/png">
   <link rel="preload" href="./assets/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./styles.css">
   <script>document.documentElement.className = 'js';</script>
+  <script src="./runtime/vendor/gsap.min.js" defer></script>
+  <script src="./runtime/motion.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" id="top">
     <nav class="nav-wrap" aria-label="Main navigation">
-      <a class="wordmark" href="#top" aria-label="StingClaw home">stingclaw<span class="sc-cursor" aria-hidden="true"></span></a>
+      <a class="wordmark" href="#top" aria-label="StingClaw home"><img class="wordmark-icon" src="./assets/stingclaw-mark.png" alt=""><img class="wordmark-type" src="./assets/stingclaw-wordmark.png" alt=""></a>
       <div class="desktop-nav">${navLinks}</div>
       ${link(copy.hero.primary, "#get-started", "button button-primary nav-cta")}
       <button class="menu-button" type="button" aria-label="Open navigation" aria-haspopup="dialog" aria-controls="mobile-menu"><span></span><span></span></button>
     </nav>
     <dialog class="mobile-menu" id="mobile-menu" aria-label="Navigation menu">
-      <div class="mobile-menu-head"><a class="wordmark" href="#top">stingclaw<span class="sc-cursor" aria-hidden="true"></span></a><button class="menu-close" type="button" aria-label="Close navigation">×</button></div>
+      <div class="mobile-menu-head"><a class="wordmark" href="#top" aria-label="StingClaw home"><img class="wordmark-icon" src="./assets/stingclaw-mark.png" alt=""><img class="wordmark-type" src="./assets/stingclaw-wordmark.png" alt=""></a><button class="menu-close" type="button" aria-label="Close navigation">×</button></div>
       <nav aria-label="Mobile navigation">${navLinks}</nav>
       ${link(copy.hero.primary, "#get-started", "button button-primary mobile-cta")}
     </dialog>
@@ -87,6 +89,7 @@ const html = `<!doctype html>
 
   <main id="main">
     <section class="hero section-wrap" aria-labelledby="hero-title">
+      <canvas class="hero-network" aria-hidden="true"></canvas>
       <div class="hero-copy">
         <h1 id="hero-title">${e(copy.hero.headline)}</h1>
         <p class="hero-description">${e(copy.hero.description)}</p>
@@ -99,9 +102,9 @@ const html = `<!doctype html>
         <div class="surface-list" aria-label="Ways to use StingClaw">${surfaceRows}</div>
       </div>
       <div class="hero-visual">
-        <div class="app-mock" role="img" aria-label="StingClaw local workspace showing two agents, a conversation, and proposed changes waiting for review">
+        <div class="app-mock" id="hero-demo" role="img" aria-label="StingClaw local workspace: a request is sent to an agent, which returns a proposed change waiting for your review">
           <div class="app-mock-sidebar"><div class="app-local"><span class="status-dot is-live"></span>${e(copy.appFrame.label)}</div><div class="mock-search">⌕ <span>Search agents</span></div><h2>${e(copy.appFrame.agentsTitle)}</h2>${appAgents}<div class="app-sidebar-foot"><span class="status-dot is-live"></span>Background service connected</div></div>
-          <div class="app-mock-main"><div class="app-mock-header"><span class="app-avatar">${e(copy.appFrame.activeAgent.slice(0, 1))}</span><span><strong>${e(copy.appFrame.activeAgent)}</strong><small>${e(copy.appFrame.activeDescription)}</small></span><span class="app-status is-waiting">${e(copy.appFrame.taskStatus)}</span></div><div class="mock-chat"><div class="mock-message from-user"><span>you</span><p>${e(copy.appFrame.userMessage)}</p></div><div class="mock-message from-agent"><span>agent</span><p>${e(copy.appFrame.agentMessage)}</p></div><div class="mock-task"><span class="task-mark">!</span><span><strong>${e(copy.appFrame.taskLabel)}</strong><small>${e(copy.appFrame.taskDescription)}</small></span></div></div><div class="mock-composer"><span>${e(copy.appFrame.composer)}</span><button type="button" tabindex="-1" aria-hidden="true">↑</button></div></div>
+          <div class="app-mock-main"><div class="app-mock-header"><span class="app-avatar">${e(copy.appFrame.activeAgent.slice(0, 1))}</span><span><strong>${e(copy.appFrame.activeAgent)}</strong><small>${e(copy.appFrame.activeDescription)}</small></span><span class="app-status-group" aria-hidden="true"><span class="app-status is-working" id="hero-status-working" style="visibility:hidden">Working</span><span class="app-status is-waiting" id="hero-status-review">${e(copy.appFrame.taskStatus)}</span></span></div><div class="mock-chat"><div class="mock-message from-user" id="hero-user-message"><span>you</span><p>${e(copy.appFrame.userMessage)}</p></div><div class="mock-message from-agent" id="hero-agent-message"><span>agent</span><p>${e(copy.appFrame.agentMessage)}</p></div><div class="mock-task" id="hero-review-card"><span class="task-mark">!</span><span><strong>${e(copy.appFrame.taskLabel)}</strong><small>${e(copy.appFrame.taskDescription)}</small></span></div></div><div class="mock-composer"><span class="mock-composer-entry"><span class="mock-composer-placeholder" id="hero-composer-placeholder">${e(copy.appFrame.composer)}</span><span class="mock-composer-text" id="hero-composer-text" style="visibility:hidden">${e(copy.appFrame.userMessage)}</span><i class="mock-composer-caret" id="hero-composer-caret" aria-hidden="true" style="visibility:hidden"></i></span><button type="button" id="hero-send" tabindex="-1" aria-hidden="true">↑</button></div><svg class="mock-pointer" id="hero-pointer" viewBox="0 0 32 44" aria-hidden="true" style="visibility:hidden"><path d="M2 2v33l9-8 6 14 7-3-6-14 12-1z" fill="#fff" stroke="#111114" stroke-width="3" stroke-linejoin="round"/></svg></div>
         </div>
         <p class="app-caption">A local workspace for conversations, tasks, and review.</p>
       </div>
@@ -152,7 +155,7 @@ const html = `<!doctype html>
     </section>
   </main>
 
-  <footer class="site-footer"><div class="section-wrap footer-main"><div class="footer-brand"><a class="wordmark" href="#top">stingclaw<span class="sc-cursor" aria-hidden="true"></span></a><p>${e(copy.footer.tagline)}</p></div><div class="footer-column"><h2>Product</h2>${footerLinks(copy.footer.product)}</div><div class="footer-column"><h2>Setup</h2>${footerLinks(copy.footer.setup)}</div></div><div class="section-wrap footer-bottom"><span>© ${new Date().getFullYear()} StingClaw</span><span>${e(copy.footer.platform)}</span></div></footer>
+  <footer class="site-footer"><div class="bangladesh-flag section-wrap" role="img" aria-label="Bangladesh flag in a subtle dark textured pattern"></div><section class="closing-brand" aria-label="StingClaw principles"><div class="closing-brand-inner section-wrap"><p class="closing-copy">Your agents. Your keys. Your files.<br><span>Changes wait for your approval.</span></p><div class="closing-logo" role="img" aria-label="StingClaw logo"><img class="closing-mark" src="./assets/stingclaw-mark.png" alt=""><img class="closing-wordmark" src="./assets/stingclaw-wordmark.png" alt=""></div></div></section><div class="section-wrap footer-main"><div class="footer-brand"><a class="wordmark" href="#top" aria-label="StingClaw home"><img class="wordmark-icon" src="./assets/stingclaw-mark.png" alt=""><img class="wordmark-type" src="./assets/stingclaw-wordmark.png" alt=""></a><p>${e(copy.footer.tagline)}</p></div><div class="footer-column"><h2>Product</h2>${footerLinks(copy.footer.product)}</div><div class="footer-column"><h2>Setup</h2>${footerLinks(copy.footer.setup)}</div></div><div class="section-wrap footer-bottom"><span>© ${new Date().getFullYear()} StingClaw</span><span>${e(copy.footer.platform)}</span></div></footer>
 </body>
 </html>`;
 

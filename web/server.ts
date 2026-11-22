@@ -6,7 +6,7 @@ import { ToolExecutor } from "../modes/agent/tool-executer";
 import { defaultAgentConfig } from "../modes/agent/types";
 import type { AgentPermissions } from "../modes/agent/types";
 import { launchTaskWorker } from "../modes/agent/task-worker";
-import { isStartupEnabled, setStartupEnabled } from "../modes/backend/startup";
+import { isStartupEnabled, launchBackendInBackground, setStartupEnabled } from "../modes/backend/startup";
 import { isValidTimeZone, nextScheduledRun, type ScheduleFrequency } from "../modes/scheduler/time";
 import { startTelegramService, stopTelegramService } from "../modes/telegram";
 import {
@@ -67,6 +67,8 @@ const STATIC_FILES: Record<string, { file: string; type: string }> = {
   "/": { file: "index.html", type: "text/html; charset=utf-8" },
   "/app.js": { file: "app.js", type: "text/javascript; charset=utf-8" },
   "/styles.css": { file: "styles.css", type: "text/css; charset=utf-8" },
+  "/assets/stingclaw-mark.png": { file: "assets/stingclaw-mark.png", type: "image/png" },
+  "/assets/stingclaw-wordmark.png": { file: "assets/stingclaw-wordmark.png", type: "image/png" },
 };
 
 function json(data: unknown, status = 200): Response {
@@ -149,7 +151,7 @@ function staticResponse(pathname: string): Response | null {
   });
 }
 
-async function handleApi(request: Request, port: number): Promise<Response> {
+async function handleApi(request: Request, port: number, onBackgroundHandoff?: () => Promise<void>): Promise<Response> {
   const url = new URL(request.url);
   const method = request.method.toUpperCase();
   const segments = url.pathname.split("/").filter(Boolean).map(decodeURIComponent);
@@ -253,7 +255,15 @@ async function handleApi(request: Request, port: number): Promise<Response> {
       if (body.action === "startup" && typeof body.enabled === "boolean") {
         try {
           setStartupEnabled(body.enabled);
-          return json({ running: true, startupEnabled: isStartupEnabled(), startupSupported: process.platform === "win32" });
+          if (body.enabled && onBackgroundHandoff) {
+            try {
+              await onBackgroundHandoff();
+            } catch (cause) {
+              setStartupEnabled(false);
+              throw cause;
+            }
+          }
+          return json({ running: true, startupEnabled: isStartupEnabled(), startupSupported: process.platform === "win32", backgroundHandoff: body.enabled && Boolean(onBackgroundHandoff) });
         } catch (cause) {
           return error(cause instanceof Error ? cause.message : "Could not update startup settings.", 400);
         }
@@ -675,7 +685,7 @@ async function handleApi(request: Request, port: number): Promise<Response> {
   }
 }
 
-export function startWebServer(port = Number(process.env.PORT ?? 3210)): Server<undefined> {
+export function startWebServer(port = Number(process.env.PORT ?? 3210), onBackgroundHandoff = true): Server<undefined> {
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
     throw new Error("PORT must be a valid TCP port between 1 and 65535.");
   }
@@ -685,7 +695,15 @@ export function startWebServer(port = Number(process.env.PORT ?? 3210)): Server<
     port,
     fetch: async (request): Promise<Response> => {
       const url = new URL(request.url);
-      if (url.pathname.startsWith("/api/")) return handleApi(request, port);
+      if (url.pathname.startsWith("/api/")) {
+        return handleApi(request, port, onBackgroundHandoff ? async () => {
+          await launchBackendInBackground();
+          setTimeout(() => {
+            server.stop(true);
+            process.exit(0);
+          }, 600);
+        } : undefined);
+      }
       if (request.method !== "GET") return error("Method not allowed.", 405);
       if (!isAllowedHost(request, port)) return error("Local requests only.", 403);
       return staticResponse(url.pathname) ?? error("Not found.", 404);

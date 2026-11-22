@@ -6,23 +6,25 @@
   <meta name="theme-color" content="#111114">
   <meta name="description" content="Run named AI agents on your computer. Work from a local web interface or Telegram, with permissions and proposed changes under your control.">
   <title>StingClaw — AI agents on your computer</title>
-  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="./assets/stingclaw-mark.png" type="image/png">
   <link rel="preload" href="./assets/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="./styles.css">
   <script>document.documentElement.className = 'js';</script>
+  <script src="./runtime/vendor/gsap.min.js" defer></script>
+  <script src="./runtime/motion.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header" id="top">
     <nav class="nav-wrap" aria-label="Main navigation">
-      <a class="wordmark" href="#top" aria-label="StingClaw home">stingclaw<span class="sc-cursor" aria-hidden="true"></span></a>
+      <a class="wordmark" href="#top" aria-label="StingClaw home"><img class="wordmark-icon" src="./assets/stingclaw-mark.png" alt=""><img class="wordmark-type" src="./assets/stingclaw-wordmark.png" alt=""></a>
       <div class="desktop-nav"><a href="#modes">Modes</a><a href="#agents">Agents</a><a href="#approvals">Approvals</a><a href="#faq">FAQ</a></div>
       <a class="button button-primary nav-cta" href="#get-started">Set up StingClaw</a>
       <button class="menu-button" type="button" aria-label="Open navigation" aria-haspopup="dialog" aria-controls="mobile-menu"><span></span><span></span></button>
     </nav>
     <dialog class="mobile-menu" id="mobile-menu" aria-label="Navigation menu">
-      <div class="mobile-menu-head"><a class="wordmark" href="#top">stingclaw<span class="sc-cursor" aria-hidden="true"></span></a><button class="menu-close" type="button" aria-label="Close navigation">×</button></div>
+      <div class="mobile-menu-head"><a class="wordmark" href="#top" aria-label="StingClaw home"><img class="wordmark-icon" src="./assets/stingclaw-mark.png" alt=""><img class="wordmark-type" src="./assets/stingclaw-wordmark.png" alt=""></a><button class="menu-close" type="button" aria-label="Close navigation">×</button></div>
       <nav aria-label="Mobile navigation"><a href="#modes">Modes</a><a href="#agents">Agents</a><a href="#approvals">Approvals</a><a href="#faq">FAQ</a></nav>
       <a class="button button-primary mobile-cta" href="#get-started">Set up StingClaw</a>
     </dialog>
@@ -30,6 +32,7 @@
 
   <main id="main">
     <section class="hero section-wrap" aria-labelledby="hero-title">
+      <canvas class="hero-network" aria-hidden="true"></canvas>
       <div class="hero-copy">
         <h1 id="hero-title">AI agents that run on your computer.</h1>
         <p class="hero-description">Create named agents, chat from a local web interface or Telegram, and review proposed changes before they reach your files.</p>
@@ -52,11 +55,11 @@ bun run dev"><span aria-hidden="true">▢</span><span class="copy-label">Copy</s
   </div></div>
       </div>
       <div class="hero-visual">
-        <div class="app-mock" role="img" aria-label="StingClaw local workspace showing two agents, a conversation, and proposed changes waiting for review">
+        <div class="app-mock" id="hero-demo" role="img" aria-label="StingClaw local workspace: a request is sent to an agent, which returns a proposed change waiting for your review">
           <div class="app-mock-sidebar"><div class="app-local"><span class="status-dot is-live"></span>Local</div><div class="mock-search">⌕ <span>Search agents</span></div><h2>Your agents</h2>
     <div class="app-agent is-selected"><span class="app-agent-mark">R</span><span><strong>Reznov</strong><small>General purpose</small></span></div>
     <div class="app-agent"><span class="app-agent-mark">R</span><span><strong>Research</strong><small>Read-only research</small></span></div><div class="app-sidebar-foot"><span class="status-dot is-live"></span>Background service connected</div></div>
-          <div class="app-mock-main"><div class="app-mock-header"><span class="app-avatar">R</span><span><strong>Reznov</strong><small>Your general-purpose StingClaw agent.</small></span><span class="app-status is-waiting">Waiting for review</span></div><div class="mock-chat"><div class="mock-message from-user"><span>you</span><p>Review the changes in my project.</p></div><div class="mock-message from-agent"><span>agent</span><p>I found a few updates to review. Here’s what changed.</p></div><div class="mock-task"><span class="task-mark">!</span><span><strong>Waiting for your review</strong><small>1 proposed file change</small></span></div></div><div class="mock-composer"><span>Message this agent...</span><button type="button" tabindex="-1" aria-hidden="true">↑</button></div></div>
+          <div class="app-mock-main"><div class="app-mock-header"><span class="app-avatar">R</span><span><strong>Reznov</strong><small>Your general-purpose StingClaw agent.</small></span><span class="app-status-group" aria-hidden="true"><span class="app-status is-working" id="hero-status-working" style="visibility:hidden">Working</span><span class="app-status is-waiting" id="hero-status-review">Waiting for review</span></span></div><div class="mock-chat"><div class="mock-message from-user" id="hero-user-message"><span>you</span><p>Review the changes in my project.</p></div><div class="mock-message from-agent" id="hero-agent-message"><span>agent</span><p>I found a few updates to review. Here’s what changed.</p></div><div class="mock-task" id="hero-review-card"><span class="task-mark">!</span><span><strong>Waiting for your review</strong><small>1 proposed file change</small></span></div></div><div class="mock-composer"><span class="mock-composer-entry"><span class="mock-composer-placeholder" id="hero-composer-placeholder">Message this agent...</span><span class="mock-composer-text" id="hero-composer-text" style="visibility:hidden">Review the changes in my project.</span><i class="mock-composer-caret" id="hero-composer-caret" aria-hidden="true" style="visibility:hidden"></i></span><button type="button" id="hero-send" tabindex="-1" aria-hidden="true">↑</button></div><svg class="mock-pointer" id="hero-pointer" viewBox="0 0 32 44" aria-hidden="true" style="visibility:hidden"><path d="M2 2v33l9-8 6 14 7-3-6-14 12-1z" fill="#fff" stroke="#111114" stroke-width="3" stroke-linejoin="round"/></svg></div>
         </div>
         <p class="app-caption">A local workspace for conversations, tasks, and review.</p>
       </div>
@@ -154,6 +157,6 @@ bun run dev"><span aria-hidden="true">▢</span><span class="copy-label">Copy</s
     </section>
   </main>
 
-  <footer class="site-footer"><div class="section-wrap footer-main"><div class="footer-brand"><a class="wordmark" href="#top">stingclaw<span class="sc-cursor" aria-hidden="true"></span></a><p>AI agents on your computer.</p></div><div class="footer-column"><h2>Product</h2><a href="#modes">Modes</a><a href="#agents">Agents</a><a href="#approvals">Approvals</a><a href="#faq">FAQ</a></div><div class="footer-column"><h2>Setup</h2><a href="#get-started">Local setup</a><a href="#task-flow">Task flow</a></div></div><div class="section-wrap footer-bottom"><span>© 2026 StingClaw</span><span>Windows supported today</span></div></footer>
+  <footer class="site-footer"><div class="bangladesh-flag section-wrap" role="img" aria-label="Bangladesh flag in a subtle dark textured pattern"></div><section class="closing-brand" aria-label="StingClaw principles"><div class="closing-brand-inner section-wrap"><p class="closing-copy">Your agents. Your keys. Your files.<br><span>Changes wait for your approval.</span></p><div class="closing-logo" role="img" aria-label="StingClaw logo"><img class="closing-mark" src="./assets/stingclaw-mark.png" alt=""><img class="closing-wordmark" src="./assets/stingclaw-wordmark.png" alt=""></div></div></section><div class="section-wrap footer-main"><div class="footer-brand"><a class="wordmark" href="#top" aria-label="StingClaw home"><img class="wordmark-icon" src="./assets/stingclaw-mark.png" alt=""><img class="wordmark-type" src="./assets/stingclaw-wordmark.png" alt=""></a><p>AI agents on your computer.</p></div><div class="footer-column"><h2>Product</h2><a href="#modes">Modes</a><a href="#agents">Agents</a><a href="#approvals">Approvals</a><a href="#faq">FAQ</a></div><div class="footer-column"><h2>Setup</h2><a href="#get-started">Local setup</a><a href="#task-flow">Task flow</a></div></div><div class="section-wrap footer-bottom"><span>© 2026 StingClaw</span><span>Windows supported today</span></div></footer>
 </body>
 </html>

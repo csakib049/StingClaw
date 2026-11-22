@@ -400,7 +400,9 @@ async function setStartupEnabled(enabled) {
       body: JSON.stringify({ action: "startup", enabled }),
     });
     $("#startup-enabled").checked = data.startupEnabled;
-    toast(data.startupEnabled ? "StingClaw will start when you sign in." : "Automatic startup is turned off.");
+    toast(data.startupEnabled
+      ? (data.backgroundHandoff ? "StingClaw is moving to the background. You can close the terminal shortly." : "StingClaw will start in the background when you sign in.")
+      : "Automatic startup is turned off.");
   } catch (error) {
     $("#startup-enabled").checked = !enabled;
     toast(error.message);
