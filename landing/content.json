@@ -18,7 +18,7 @@
     "setupNote": "Then open the local app shown in your terminal and add an OpenRouter API key in Settings.",
     "surfaceRows": [
       { "name": "Web app", "description": "Chat with your agents in a local browser interface.", "action": "Explore modes", "href": "#modes" },
-      { "name": "Telegram", "description": "Message the same saved agents from your phone.", "action": "See how", "href": "#faq" },
+      { "name": "Telegram", "description": "Message the same saved agents from your phone.", "action": "Watch demo", "href": "#telegram-demo" },
       { "name": "Background service", "description": "Tasks continue while your computer and service are running.", "action": "View task flow", "href": "#task-flow" }
     ]
   },
@@ -29,6 +29,15 @@
     "duration": "3 min 35 sec",
     "src": "./media/StingClaw_launch_video.mp4",
     "poster": "./media/StingClaw_launch_video-poster.jpg"
+  },
+  "telegramDemo": {
+    "eyebrow": "AGENTS FROM YOUR PHONE",
+    "title": "Your agents in Telegram",
+    "description": "Choose a saved agent, send it work, and follow task updates from your paired Telegram account.",
+    "points": ["Switch between saved agents", "Send questions, plans, and tasks", "Follow progress and review proposed changes"],
+    "duration": "1 min 32 sec",
+    "src": "./media/StingClaw_Telegram_control_video.mp4",
+    "poster": "./media/telegram-control-poster.png"
   },
   "appFrame": {
     "label": "Local",

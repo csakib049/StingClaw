@@ -179,6 +179,17 @@ code, pre, .transcript, .command-lines { font-variant-ligatures: contextual; fon
 .launch-video-frame { width: min(100%, 62rem); margin: 0; overflow: hidden; border: 1px solid var(--sc-border-default); border-radius: 6px; background: var(--sc-bg-inset); box-shadow: 0 28px 88px rgba(0, 0, 0, .28), 0 0 52px rgba(195, 33, 72, .08); }
 .launch-video-frame video { display: block; width: 100%; aspect-ratio: 16 / 9; background: var(--sc-bg-base); object-fit: contain; }
 .launch-video-frame figcaption { border-top: 1px solid var(--sc-border-subtle); padding: .75rem 1rem; color: var(--sc-text-muted); font-size: .75rem; }
+.telegram-demo-section { scroll-margin-top: 4rem; }
+.telegram-demo-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem); align-items: center; gap: clamp(2rem, 7vw, 6rem); }
+.telegram-demo-copy { max-width: 38rem; }
+.telegram-demo-copy h2 { margin: 0; font-size: clamp(1.625rem, 3vw, 2.25rem); font-weight: 600; letter-spacing: -.025em; line-height: 1.2; }
+.telegram-demo-copy > p:not(.film-eyebrow) { max-width: 56ch; margin: 1.25rem 0 0; color: var(--sc-text-secondary); font-size: 1.0625rem; line-height: 1.75; }
+.telegram-demo-points { display: grid; gap: .8rem; margin: 1.75rem 0 0; padding: 0; list-style: none; }
+.telegram-demo-points li { position: relative; padding-left: 1.5rem; color: var(--sc-text-secondary); }
+.telegram-demo-points li::before { position: absolute; top: .62em; left: 0; width: .45rem; height: .45rem; border-radius: 50%; background: var(--sc-brand); content: ""; }
+.telegram-demo-frame { width: min(100%, 21rem); justify-self: center; margin: 0; overflow: hidden; border: 1px solid var(--sc-border-default); border-radius: 8px; background: var(--sc-bg-inset); box-shadow: 0 28px 88px rgba(0, 0, 0, .28), 0 0 52px rgba(195, 33, 72, .08); }
+.telegram-demo-frame video { display: block; width: 100%; max-height: 76vh; aspect-ratio: 1 / 2; background: var(--sc-bg-base); object-fit: contain; }
+.telegram-demo-frame figcaption { border-top: 1px solid var(--sc-border-subtle); padding: .75rem 1rem; color: var(--sc-text-muted); font-size: .75rem; }
 .proof-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .proof-item { min-width: 0; padding: .25rem 1.5rem; }
 .proof-item:first-child { padding-left: 0; }

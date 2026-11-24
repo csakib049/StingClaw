@@ -99,6 +99,12 @@ File and shell changes are staged. Open the task's review card to inspect the pr
 
 ## Connect Telegram
 
+See the Telegram controls in action:
+
+[![Telegram control video preview](landing/media/telegram-control-poster.png)](landing/media/StingClaw_Telegram_control_video.mp4)
+
+Click the preview to open the 1 minute 32 second demonstration.
+
 1. In Telegram, create a bot with [@BotFather](https://t.me/BotFather) and copy its token.
 2. In StingClaw, open the gear, then **Telegram**. Paste the token and select **Connect bot**.
 3. Select the one-time pairing link and open it in your Telegram account.

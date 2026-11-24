@@ -29,6 +29,7 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Keep the full-resolution source local; the optimized landing copy is tracked.
 /Images_and_videos/StingClaw_launch_video.mp4
+/Images_and_videos/StingClaw_Telegram_control_video.mp4
 
 # IntelliJ based IDEs
 .idea

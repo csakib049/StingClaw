@@ -9,6 +9,7 @@ const e = (value) => String(value).replace(/[&<>"']/g, (char) => ({
 })[char]);
 const link = (label, href, className = "") => `<a${className ? ` class="${className}"` : ""} href="${e(href)}">${e(label)}</a>`;
 const list = (items, className = "") => `<ul${className ? ` class="${className}"` : ""}>${items.map((item) => `<li>${e(item)}</li>`).join("")}</ul>`;
+const telegramPoints = list(copy.telegramDemo.points, "telegram-demo-points");
 
 const navLinks = copy.navigation.map((item) => link(item.label, item.href)).join("");
 const surfaceRows = copy.hero.surfaceRows.map((row) => `
@@ -116,6 +117,13 @@ const html = `<!doctype html>
       <div class="section-wrap">
         <div class="section-heading"><p class="film-eyebrow">${e(copy.video.eyebrow)}</p><h2 id="product-video-title">${e(copy.video.title)}</h2><p>${e(copy.video.description)}</p></div>
         <figure class="launch-video-frame"><video controls playsinline preload="none" poster="${e(copy.video.poster)}" aria-label="StingClaw product launch video"><source src="${e(copy.video.src)}" type="video/mp4">Your browser does not support embedded video. <a href="${e(copy.video.src)}">Open the StingClaw launch video</a>.</video><figcaption>${e(copy.video.duration)} · Product overview</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="section section-inset telegram-demo-section" id="telegram-demo" aria-labelledby="telegram-demo-title">
+      <div class="section-wrap telegram-demo-grid">
+        <div class="telegram-demo-copy"><p class="film-eyebrow">${e(copy.telegramDemo.eyebrow)}</p><h2 id="telegram-demo-title">${e(copy.telegramDemo.title)}</h2><p>${e(copy.telegramDemo.description)}</p>${telegramPoints}</div>
+        <figure class="telegram-demo-frame"><video controls playsinline preload="metadata" poster="${e(copy.telegramDemo.poster)}" aria-label="StingClaw Telegram control demonstration"><source src="${e(copy.telegramDemo.src)}" type="video/mp4">Your browser does not support embedded video. <a href="${e(copy.telegramDemo.src)}">Open the Telegram control video</a>.</video><figcaption>${e(copy.telegramDemo.duration)} · Telegram control demo</figcaption></figure>
       </div>
     </section>
 
